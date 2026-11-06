@@ -2,59 +2,26 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Radio, CheckCircle, AlertTriangle, Clock, ArrowUpRight } from "lucide-react";
+import { Plus, Radio, CheckCircle, AlertTriangle, Clock, ArrowUpRight, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-
-const demoEndpoints = [
-  {
-    id: "ep-1",
-    name: "Stripe Webhook Gateway",
-    url: "https://api.stripe.com/v1/events",
-    method: "POST",
-    status: "UP" as const,
-    latency: "84ms",
-    uptime: "99.98%",
-  },
-  {
-    id: "ep-2",
-    name: "User Authentication Service",
-    url: "https://auth.apiwatch.dev/v1/verify",
-    method: "GET",
-    status: "UP" as const,
-    latency: "112ms",
-    uptime: "100.0%",
-  },
-  {
-    id: "ep-3",
-    name: "Database Ingestion API",
-    url: "https://data.apiwatch.dev/v1/ingest",
-    method: "POST",
-    status: "DOWN" as const,
-    latency: "1,240ms",
-    uptime: "98.42%",
-  },
-  {
-    id: "ep-4",
-    name: "Notification Dispatcher",
-    url: "https://notify.apiwatch.dev/health",
-    method: "GET",
-    status: "PAUSED" as const,
-    latency: "—",
-    uptime: "99.50%",
-  },
-];
+import { Badge } from "@/components/ui/badge";
+import { LatencyChart } from "@/components/endpoints/latency-chart";
+import { initialMockEndpoints } from "@/features/endpoints/mock/endpoints.data";
+import { mock24hLatencyData, mockDashboardMetrics } from "@/features/dashboard/mock/dashboard.data";
 
 export default function DashboardOverviewPage() {
+  const [endpoints] = React.useState(initialMockEndpoints);
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Dashboard"
-        description="Real-time health overview and performance metrics across all workspaces."
+        title="Dashboard Overview"
+        description="Real-time uptime metrics, health status, and latency across your workspaces."
       >
         <Button render={<Link href="/endpoints/new" />} className="gap-2">
           <Plus className="h-4 w-4" />
@@ -62,45 +29,95 @@ export default function DashboardOverviewPage() {
         </Button>
       </PageHeader>
 
+      {/* Active Incident Callout Banner */}
+      {mockDashboardMetrics.activeIncident && (
+        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-rose-500/20 text-rose-500 shrink-0">
+              <AlertTriangle className="h-5 w-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-rose-600 dark:text-rose-400">
+                  Active Downtime: {mockDashboardMetrics.activeIncident.endpointName}
+                </span>
+                <Badge variant="destructive" className="text-[10px] py-0 px-1.5 uppercase font-mono">
+                  DOWN
+                </Badge>
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {mockDashboardMetrics.activeIncident.reason} • Started {mockDashboardMetrics.activeIncident.startedAt}
+              </p>
+            </div>
+          </div>
+          <Button variant="outline" size="sm" render={<Link href={`/endpoints/${mockDashboardMetrics.activeIncident.endpointId}`} />} className="border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-xs shrink-0">
+            Investigate Incident
+          </Button>
+        </div>
+      )}
+
+      {/* KPI Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Monitored Endpoints"
-          value="4"
-          description="Total active endpoints"
+          value={mockDashboardMetrics.totalEndpoints}
+          description="Total active monitored services"
           icon={<Radio className="h-4 w-4 text-primary" />}
         />
         <StatCard
           title="Healthy (UP)"
-          value="2"
-          description="Meeting SLA standards"
+          value={mockDashboardMetrics.healthyCount}
+          description="Meeting SLA availability"
           icon={<CheckCircle className="h-4 w-4 text-emerald-500" />}
-          trend={{ value: "+100%", isPositive: true }}
+          trend={{ value: "+100% SLA", isPositive: true }}
         />
         <StatCard
-          title="Incidents / DOWN"
-          value="1"
-          description="1 endpoint failing checks"
+          title="Active Outages"
+          value={mockDashboardMetrics.downCount}
+          description="Endpoints failing assertions"
           icon={<AlertTriangle className="h-4 w-4 text-rose-500" />}
           trend={{ value: "Action Required", isPositive: false }}
         />
         <StatCard
-          title="Avg. Response Time"
-          value="134ms"
-          description="Weighted 24-hour latency"
+          title="Average Latency"
+          value={`${mockDashboardMetrics.avgResponseTimeMs} ms`}
+          description="Weighted 24h response time"
           icon={<Clock className="h-4 w-4 text-amber-500" />}
         />
       </div>
 
+      {/* Latency Chart Card */}
       <Card className="border border-border">
         <CardHeader className="flex flex-row items-center justify-between py-4">
           <div>
-            <CardTitle className="text-base font-semibold">Active Endpoints</CardTitle>
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Activity className="h-4 w-4 text-primary" />
+              Aggregate Latency Trend (Last 24 Hours)
+            </CardTitle>
             <CardDescription className="text-xs">
-              Quick status summary of registered endpoints.
+              Measured response times across all active endpoints in milliseconds.
+            </CardDescription>
+          </div>
+          <Badge variant="outline" className="font-mono text-xs">
+            Avg: {mockDashboardMetrics.avgResponseTimeMs}ms
+          </Badge>
+        </CardHeader>
+        <CardContent className="pt-2 pb-6 px-4">
+          <LatencyChart data={mock24hLatencyData} height={220} />
+        </CardContent>
+      </Card>
+
+      {/* Active Endpoints Table */}
+      <Card className="border border-border">
+        <CardHeader className="flex flex-row items-center justify-between py-4">
+          <div>
+            <CardTitle className="text-base font-semibold">Registered Endpoints</CardTitle>
+            <CardDescription className="text-xs">
+              Overview of all target HTTP/HTTPS endpoints and current health state.
             </CardDescription>
           </div>
           <Button variant="ghost" size="sm" render={<Link href="/endpoints" />} className="gap-1 text-xs">
-            View All <ArrowUpRight className="h-3.5 w-3.5" />
+            Manage All <ArrowUpRight className="h-3.5 w-3.5" />
           </Button>
         </CardHeader>
         <CardContent className="p-0">
@@ -116,7 +133,7 @@ export default function DashboardOverviewPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {demoEndpoints.map((ep) => (
+              {endpoints.map((ep) => (
                 <TableRow key={ep.id}>
                   <TableCell className="font-medium">
                     <Link
@@ -139,7 +156,7 @@ export default function DashboardOverviewPage() {
                   </TableCell>
                   <TableCell className="font-mono text-xs">{ep.latency}</TableCell>
                   <TableCell className="hidden sm:table-cell font-mono text-xs font-medium text-emerald-500">
-                    {ep.uptime}
+                    {ep.uptime30d}
                   </TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="sm" render={<Link href={`/endpoints/${ep.id}`} />}>
