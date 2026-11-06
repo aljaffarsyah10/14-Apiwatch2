@@ -1,63 +1,126 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Activity, ShieldCheck, Zap } from "lucide-react";
+"use client";
 
-export default function Home() {
+import * as React from "react";
+import Link from "next/link";
+import {
+  Radio,
+  BellRing,
+  ArrowRight,
+  Lock,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PublicNavbar } from "@/components/layout/public-navbar";
+import { PublicFooter } from "@/components/layout/public-footer";
+
+export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col items-center justify-center p-6">
-      <main className="max-w-2xl w-full space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-blue-600 text-white">
-              <Activity className="h-6 w-6" />
+    <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <PublicNavbar />
+
+      <main className="flex-1">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden py-20 sm:py-32 border-b border-border/60 bg-linear-to-b from-background via-muted/10 to-background">
+          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+            <div className="flex justify-center">
+              <Badge variant="outline" className="px-3 py-1 border-primary/30 text-primary text-xs gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                Automated 24/7 API Health Monitoring
+              </Badge>
             </div>
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight">APIWatch</h1>
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                Automated API Monitoring & Reliability Platform
-              </p>
+
+            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground max-w-4xl mx-auto leading-tight">
+              Know when your APIs fail <br className="hidden sm:inline" />
+              <span className="text-primary">before your users do</span>.
+            </h1>
+
+            <p className="max-w-2xl mx-auto text-base sm:text-lg text-muted-foreground leading-relaxed">
+              APIWatch executes scheduled HTTP/HTTPS health checks with deep assertion validation,
+              enterprise-grade SSRF defense, and instant incident notification.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <Button size="lg" render={<Link href="/dashboard" />} className="gap-2 w-full sm:w-auto h-12 px-6 text-base">
+                Launch Dashboard <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button size="lg" variant="outline" render={<Link href="/login" />} className="w-full sm:w-auto h-12 px-6 text-base">
+                Sign In
+              </Button>
             </div>
           </div>
-          <Badge variant="outline" className="border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
-            Phase 1 Ready
-          </Badge>
-        </div>
+        </section>
 
-        <Card className="border border-zinc-200 dark:border-zinc-800">
-          <CardHeader>
-            <CardTitle>Environment & Project Bootstrap</CardTitle>
-            <CardDescription>
-              Foundational stack configured with Next.js App Router, Tailwind CSS, shadcn/ui, and TypeScript.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-              <div className="flex items-center space-x-2 text-zinc-600 dark:text-zinc-300">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                <span>Next.js 16 + React 19 + TypeScript</span>
-              </div>
-              <div className="flex items-center space-x-2 text-zinc-600 dark:text-zinc-300">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                <span>Tailwind CSS v4 + shadcn/ui</span>
-              </div>
-              <div className="flex items-center space-x-2 text-zinc-600 dark:text-zinc-300">
-                <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                <span>ESLint + Prettier Configured</span>
-              </div>
-              <div className="flex items-center space-x-2 text-zinc-600 dark:text-zinc-300">
-                <Zap className="h-4 w-4 text-amber-500" />
-                <span>Base Dependencies Installed</span>
-              </div>
-            </div>
+        {/* Feature Cards Grid */}
+        <section id="features" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+              Engineered for developer reliability
+            </h2>
+            <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+              Built on a dedicated Node.js worker and BullMQ scheduler to guarantee continuous execution.
+            </p>
+          </div>
 
-            <div className="pt-2 flex gap-3">
-              <Button>Get Started</Button>
-              <Button variant="outline">Documentation</Button>
-            </div>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="border border-border">
+              <CardHeader>
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2">
+                  <Radio className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-lg">Periodic Health Checks</CardTitle>
+                <CardDescription className="text-xs">
+                  Automated checks from 1 to 60-minute intervals with millisecond latency resolution.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-xs text-muted-foreground space-y-2">
+                <p>• Status code verification (2xx, 3xx, 4xx, 5xx)</p>
+                <p>• Response body pattern and string matching</p>
+                <p>• Custom request headers and JSON payloads</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-border">
+              <CardHeader>
+                <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-2">
+                  <Lock className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-lg">Strict SSRF & IP Pinning</CardTitle>
+                <CardDescription className="text-xs">
+                  Advanced multi-layer security blocking private IP ranges and preventing DNS rebinding.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-xs text-muted-foreground space-y-2">
+                <p>• RFC1918 & Cloud metadata blocking</p>
+                <p>• Pre-request DNS resolution & subnet validation</p>
+                <p>• AES-256-GCM encrypted authorization tokens</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-border">
+              <CardHeader>
+                <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
+                  <BellRing className="h-5 w-5" />
+                </div>
+                <CardTitle className="text-lg">Incident Lifecycle & Alerts</CardTitle>
+                <CardDescription className="text-xs">
+                  Automated downtime tracking with recovery verification and email notifications.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-xs text-muted-foreground space-y-2">
+                <p>• Automatic OPEN and RESOLVED transitions</p>
+                <p>• Check-based SLA uptime calculations</p>
+                <p>• Latency percentiles (p50, p90, p99)</p>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       </main>
+
+      <PublicFooter />
     </div>
   );
 }
