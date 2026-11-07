@@ -1,0 +1,207 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+  HEAD
+}
+
+enum EndpointStatus {
+  UP
+  DOWN
+  PAUSED
+  PENDING
+}
+
+enum CheckStatus {
+  SUCCESS
+  FAILED
+  TIMEOUT
+  ERROR
+}
+
+enum IncidentStatus {
+  OPEN
+  RESOLVED
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+model User {
+  id            String      @id @default(uuid())
+  email         String      @unique
+  passwordHash  String?
+  name          String?
+  image         String?
+  workspaces    Workspace[]
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Workspace {
+  id                   String                @id @default(uuid())
+  name                 String
+  ownerId              String
+  owner                User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  endpoints            Endpoint[]
+  notificationSettings NotificationSetting[]
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+
+  @@index([ownerId])
+}
+
+model Endpoint {
+  id              String                   @id @default(uuid())
+  workspaceId     String
+  workspace       Workspace                @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  name            String
+  url             String
+  method          HttpMethod               @default(GET)
+  intervalSeconds Int                      @default(300)
+  timeoutMs       Int                      @default(10000)
+  status          EndpointStatus           @default(PENDING)
+  isActive        Boolean                  @default(true)
+  configVersion   Int                      @default(1)
+  config          MonitoringConfiguration?
+  checks          MonitoringCheck[]
+  incidents       Incident[]
+  documentation   EndpointDocumentation?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  @@index([workspaceId])
+  @@index([isActive])
+}
+
+model MonitoringConfiguration {
+  id                      String   @id @default(uuid())
+  endpointId              String   @unique
+  endpoint                Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  expectedStatusCodes     Int[]    @default([200])
+  requestHeadersEncrypted String?  @db.Text
+  requestBody             String?  @db.Text
+  expectedHeaders         Json?
+  expectedBodyContains    String?  @db.Text
+  expectedBodyNotContains String?  @db.Text
+  followRedirects         Boolean  @default(false)
+  maxResponseBytes        Int      @default(1048576)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model MonitoringCheck {
+  id               String      @id @default(uuid())
+  endpointId       String
+  endpoint         Endpoint    @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  statusCode       Int?
+  responseTimeMs   Float?
+  isSuccess        Boolean
+  status           CheckStatus
+  errorCode        String?
+  errorMessage     String?
+  assertionResults Json?
+  checkedAt        DateTime    @default(now())
+
+  @@index([endpointId, checkedAt(sort: Desc)])
+  @@index([checkedAt])
+}
+
+model Incident {
+  id            String         @id @default(uuid())
+  endpointId    String
+  endpoint      Endpoint       @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  status        IncidentStatus @default(OPEN)
+  startedAt     DateTime       @default(now())
+  resolvedAt    DateTime?
+  failureReason String?
+  notifications Notification[]
+
+  @@index([endpointId, status])
+}
+
+model NotificationSetting {
+  id          String    @id @default(uuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  email       String
+  enabled     Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([workspaceId])
+}
+
+model Notification {
+  id             String                     @id @default(uuid())
+  incidentId     String
+  incident       Incident                   @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  type           String                     @default("EMAIL")
+  recipient      String
+  deliveryStatus NotificationDeliveryStatus @default(PENDING)
+  sentAt         DateTime?
+  createdAt      DateTime                   @default(now())
+
+  @@index([incidentId])
+  @@index([deliveryStatus])
+}
+
+model EndpointDocumentation {
+  id              String   @id @default(uuid())
+  endpointId      String   @unique
+  endpoint        Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  description     String?  @db.Text
+  requestExample  String?  @db.Text
+  responseExample String?  @db.Text
+  updatedAt       DateTime @updatedAt
+}
