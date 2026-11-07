@@ -3,6 +3,12 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+interface EmptyStateAction {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+}
+
 interface EmptyStateProps {
   icon?: React.ReactNode;
   title: string;
@@ -10,6 +16,7 @@ interface EmptyStateProps {
   actionLabel?: string;
   onAction?: () => void;
   actionHref?: string;
+  action?: EmptyStateAction;
   className?: string;
 }
 
@@ -20,8 +27,13 @@ export function EmptyState({
   actionLabel,
   onAction,
   actionHref,
+  action,
   className,
 }: EmptyStateProps) {
+  const actualLabel = action?.label || actionLabel;
+  const actualHref = action?.href || actionHref;
+  const actualOnClick = action?.onClick || onAction;
+
   return (
     <div
       className={cn(
@@ -36,12 +48,12 @@ export function EmptyState({
       )}
       <h3 className="text-lg font-semibold text-foreground">{title}</h3>
       <p className="mt-1.5 max-w-sm text-sm text-muted-foreground">{description}</p>
-      {(actionLabel && (onAction || actionHref)) && (
+      {actualLabel && (actualOnClick || actualHref) && (
         <div className="mt-6">
-          {actionHref ? (
-            <Button render={<Link href={actionHref} />}>{actionLabel}</Button>
+          {actualHref ? (
+            <Button render={<Link href={actualHref} />}>{actualLabel}</Button>
           ) : (
-            <Button onClick={onAction}>{actionLabel}</Button>
+            <Button onClick={actualOnClick}>{actualLabel}</Button>
           )}
         </div>
       )}

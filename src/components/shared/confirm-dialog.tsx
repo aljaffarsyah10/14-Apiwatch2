@@ -17,6 +17,7 @@ interface ConfirmDialogProps {
   title: string;
   description: string;
   confirmLabel?: string;
+  confirmText?: string;
   cancelLabel?: string;
   variant?: "default" | "destructive";
   onConfirm: () => void;
@@ -28,12 +29,15 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = "Confirm",
+  confirmLabel,
+  confirmText,
   cancelLabel = "Cancel",
   variant = "default",
   onConfirm,
   isLoading = false,
 }: ConfirmDialogProps) {
+  const actualConfirmLabel = confirmText || confirmLabel || "Confirm";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -53,13 +57,10 @@ export function ConfirmDialog({
           <Button
             type="button"
             variant={variant}
-            onClick={() => {
-              onConfirm();
-              onOpenChange(false);
-            }}
+            onClick={onConfirm}
             disabled={isLoading}
           >
-            {confirmLabel}
+            {isLoading ? "Processing..." : actualConfirmLabel}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -10,7 +10,12 @@ import {
   CartesianGrid,
   Tooltip,
 } from "recharts";
-import { LatencyDataPoint } from "@/features/dashboard/mock/dashboard.data";
+
+export interface LatencyDataPoint {
+  time: string;
+  latency?: number;
+  latencyMs?: number;
+}
 
 interface LatencyChartProps {
   data: LatencyDataPoint[];
@@ -26,14 +31,15 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
+    const value = data.latencyMs !== undefined ? data.latencyMs : data.latency ?? 0;
     return (
       <div className="rounded-lg border border-border/80 bg-popover p-2.5 shadow-md text-xs font-mono">
         <p className="text-muted-foreground mb-1">{label}</p>
         <p className="font-semibold text-foreground">
-          Latency: <span className="text-primary">{data.latencyMs} ms</span>
+          Latency: <span className="text-primary">{value} ms</span>
         </p>
         <p className="text-[11px] text-emerald-500 mt-0.5">
-          Status: {data.status} OK
+          Health Status: Operational
         </p>
       </div>
     );
@@ -41,51 +47,73 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   return null;
 }
 
-const emptySubscribe = () => () => {};
+function subscribe() {
+  return () => {};
+}
 
-export function LatencyChart({ data, height = 240 }: LatencyChartProps) {
+export function LatencyChart({ data, height = 260 }: LatencyChartProps) {
+  // Safe client hydration check without triggering react-hooks/set-state-in-effect
   const isMounted = React.useSyncExternalStore(
-    emptySubscribe,
+    subscribe,
     () => true,
     () => false
   );
 
+  const formattedData = React.useMemo(() => {
+    return data.map((d) => ({
+      ...d,
+      value: d.latencyMs !== undefined ? d.latencyMs : d.latency ?? 0,
+    }));
+  }, [data]);
+
   if (!isMounted) {
-    return <div style={{ height }} className="w-full bg-muted/20 animate-pulse rounded-lg" />;
+    return (
+      <div
+        className="w-full rounded-xl bg-muted/20 animate-pulse flex items-center justify-center text-xs font-mono text-muted-foreground"
+        style={{ height }}
+      >
+        Initializing real-time metric stream...
+      </div>
+    );
   }
 
   return (
-    <div style={{ width: "100%", height }}>
+    <div className="w-full" style={{ height }}>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
-          data={data}
+          data={formattedData}
           margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
         >
           <defs>
             <linearGradient id="latencyGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="var(--color-primary, #3b82f6)" stopOpacity={0.3} />
+              <stop offset="5%" stopColor="var(--color-primary, #3b82f6)" stopOpacity={0.35} />
               <stop offset="95%" stopColor="var(--color-primary, #3b82f6)" stopOpacity={0.0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border) / 0.5)" />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="currentColor"
+            className="text-border/40"
+            vertical={false}
+          />
           <XAxis
             dataKey="time"
-            stroke="hsl(var(--muted-foreground))"
-            fontSize={11}
+            stroke="currentColor"
+            className="text-muted-foreground text-[10px] font-mono"
             tickLine={false}
             axisLine={false}
           />
           <YAxis
-            stroke="hsl(var(--muted-foreground))"
-            fontSize={11}
+            stroke="currentColor"
+            className="text-muted-foreground text-[10px] font-mono"
             tickLine={false}
             axisLine={false}
-            unit="ms"
+            tickFormatter={(val) => `${val}ms`}
           />
           <Tooltip content={<CustomTooltip />} />
           <Area
             type="monotone"
-            dataKey="latencyMs"
+            dataKey="value"
             stroke="var(--color-primary, #3b82f6)"
             strokeWidth={2}
             fillOpacity={1}

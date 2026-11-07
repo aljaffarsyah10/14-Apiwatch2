@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Radio, CheckCircle, AlertTriangle, Clock, ArrowUpRight, Activity } from "lucide-react";
+import { Plus, Radio, CheckCircle, AlertTriangle, Clock, ArrowUpRight, Activity, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -11,11 +11,90 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { LatencyChart } from "@/components/endpoints/latency-chart";
-import { initialMockEndpoints } from "@/features/endpoints/mock/endpoints.data";
-import { mock24hLatencyData, mockDashboardMetrics } from "@/features/dashboard/mock/dashboard.data";
+import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
+import { ErrorState } from "@/components/shared/error-state";
+import { EmptyState } from "@/components/shared/empty-state";
+import { getDashboardSummary, DashboardSummaryData } from "@/lib/api/dashboard";
+import { getEndpoints, EndpointItem } from "@/lib/api/endpoints";
 
 export default function DashboardOverviewPage() {
-  const [endpoints] = React.useState(initialMockEndpoints);
+  const [summary, setSummary] = React.useState<DashboardSummaryData | null>(null);
+  const [endpoints, setEndpoints] = React.useState<EndpointItem[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+  const [refreshIndex, setRefreshIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    let ignore = false;
+    async function load() {
+      try {
+        const [sumData, epData] = await Promise.all([
+          getDashboardSummary(),
+          getEndpoints(),
+        ]);
+        if (!ignore) {
+          setSummary(sumData);
+          setEndpoints(epData);
+          setIsLoading(false);
+        }
+      } catch (err: unknown) {
+        if (!ignore) {
+          setError(err instanceof Error ? err.message : "Failed to load dashboard data");
+          setIsLoading(false);
+        }
+      }
+    }
+    load();
+    return () => {
+      ignore = true;
+    };
+  }, [refreshIndex]);
+
+  const handleRefresh = () => {
+    setIsLoading(true);
+    setRefreshIndex((prev) => prev + 1);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader
+          title="Dashboard Overview"
+          description="Real-time uptime metrics, health status, and latency across your workspaces."
+        />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <LoadingSkeleton variant="card" />
+          <LoadingSkeleton variant="card" />
+          <LoadingSkeleton variant="card" />
+          <LoadingSkeleton variant="card" />
+        </div>
+        <LoadingSkeleton variant="card" />
+      </div>
+    );
+  }
+
+  if (error || !summary) {
+    return (
+      <ErrorState
+        title="Could not load dashboard metrics"
+        description={error || "An unexpected error occurred while fetching dashboard summary."}
+        onRetry={handleRefresh}
+      />
+    );
+  }
+
+  const activeIncident = summary.recentActiveIncidents[0];
+  const chartData = summary.latencyTimeline.length > 0
+    ? summary.latencyTimeline.map((item) => ({
+        time: new Date(item.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        latency: item.latency,
+      }))
+    : [
+        { time: "00:00", latency: 0 },
+        { time: "06:00", latency: 0 },
+        { time: "12:00", latency: 0 },
+        { time: "18:00", latency: 0 },
+      ];
 
   return (
     <div className="space-y-6">
@@ -23,14 +102,20 @@ export default function DashboardOverviewPage() {
         title="Dashboard Overview"
         description="Real-time uptime metrics, health status, and latency across your workspaces."
       >
-        <Button render={<Link href="/endpoints/new" />} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Endpoint
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-1.5 text-xs">
+            <RefreshCw className="h-3.5 w-3.5" />
+            Refresh
+          </Button>
+          <Button render={<Link href="/endpoints/new" />} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Endpoint
+          </Button>
+        </div>
       </PageHeader>
 
       {/* Active Incident Callout Banner */}
-      {mockDashboardMetrics.activeIncident && (
+      {activeIncident && (
         <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-rose-500/20 text-rose-500 shrink-0">
@@ -39,18 +124,24 @@ export default function DashboardOverviewPage() {
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-rose-600 dark:text-rose-400">
-                  Active Downtime: {mockDashboardMetrics.activeIncident.endpointName}
+                  Active Downtime: {activeIncident.endpointName}
                 </span>
                 <Badge variant="destructive" className="text-[10px] py-0 px-1.5 uppercase font-mono">
                   DOWN
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {mockDashboardMetrics.activeIncident.reason} • Started {mockDashboardMetrics.activeIncident.startedAt}
+                {activeIncident.failureReason || "Failing assertions"} • Started{" "}
+                {new Date(activeIncident.startedAt).toLocaleString()}
               </p>
             </div>
           </div>
-          <Button variant="outline" size="sm" render={<Link href={`/endpoints/${mockDashboardMetrics.activeIncident.endpointId}`} />} className="border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-xs shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            render={<Link href={`/endpoints/${activeIncident.endpointId}`} />}
+            className="border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-xs shrink-0"
+          >
             Investigate Incident
           </Button>
         </div>
@@ -60,27 +151,27 @@ export default function DashboardOverviewPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Monitored Endpoints"
-          value={mockDashboardMetrics.totalEndpoints}
+          value={summary.totalEndpoints}
           description="Total active monitored services"
           icon={<Radio className="h-4 w-4 text-primary" />}
         />
         <StatCard
           title="Healthy (UP)"
-          value={mockDashboardMetrics.healthyCount}
+          value={summary.healthyCount}
           description="Meeting SLA availability"
           icon={<CheckCircle className="h-4 w-4 text-emerald-500" />}
-          trend={{ value: "+100% SLA", isPositive: true }}
+          trend={{ value: `${summary.uptime24h}% 24h SLA`, isPositive: true }}
         />
         <StatCard
           title="Active Outages"
-          value={mockDashboardMetrics.downCount}
+          value={summary.outageCount}
           description="Endpoints failing assertions"
           icon={<AlertTriangle className="h-4 w-4 text-rose-500" />}
-          trend={{ value: "Action Required", isPositive: false }}
+          trend={summary.outageCount > 0 ? { value: "Action Required", isPositive: false } : undefined}
         />
         <StatCard
           title="Average Latency"
-          value={`${mockDashboardMetrics.avgResponseTimeMs} ms`}
+          value={`${summary.avgResponseTimeMs} ms`}
           description="Weighted 24h response time"
           icon={<Clock className="h-4 w-4 text-amber-500" />}
         />
@@ -99,11 +190,11 @@ export default function DashboardOverviewPage() {
             </CardDescription>
           </div>
           <Badge variant="outline" className="font-mono text-xs">
-            Avg: {mockDashboardMetrics.avgResponseTimeMs}ms
+            Avg: {summary.avgResponseTimeMs}ms
           </Badge>
         </CardHeader>
         <CardContent className="pt-2 pb-6 px-4">
-          <LatencyChart data={mock24hLatencyData} height={220} />
+          <LatencyChart data={chartData} height={220} />
         </CardContent>
       </Card>
 
@@ -121,52 +212,67 @@ export default function DashboardOverviewPage() {
           </Button>
         </CardHeader>
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Endpoint</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="hidden md:table-cell">Method</TableHead>
-                <TableHead>Latency</TableHead>
-                <TableHead className="hidden sm:table-cell">30d Uptime</TableHead>
-                <TableHead className="text-right">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {endpoints.map((ep) => (
-                <TableRow key={ep.id}>
-                  <TableCell className="font-medium">
-                    <Link
-                      href={`/endpoints/${ep.id}`}
-                      className="hover:underline flex flex-col"
-                    >
-                      <span className="font-semibold text-foreground text-sm">
-                        {ep.name}
-                      </span>
-                      <span className="font-mono text-xs text-muted-foreground truncate max-w-xs">
-                        {ep.url}
-                      </span>
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={ep.status} />
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell font-mono text-xs font-semibold">
-                    {ep.method}
-                  </TableCell>
-                  <TableCell className="font-mono text-xs">{ep.latency}</TableCell>
-                  <TableCell className="hidden sm:table-cell font-mono text-xs font-medium text-emerald-500">
-                    {ep.uptime30d}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" render={<Link href={`/endpoints/${ep.id}`} />}>
-                      Details
-                    </Button>
-                  </TableCell>
+          {endpoints.length === 0 ? (
+            <div className="py-8">
+              <EmptyState
+                title="No endpoints registered yet"
+                description="Add your first HTTP/HTTPS API to start monitoring uptime, response times, and failure alerts."
+                action={{
+                  label: "Add Endpoint",
+                  href: "/endpoints/new",
+                }}
+              />
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Endpoint</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="hidden md:table-cell">Method</TableHead>
+                  <TableHead>Interval</TableHead>
+                  <TableHead className="hidden sm:table-cell">Latest Latency</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {endpoints.slice(0, 10).map((ep) => {
+                  const latestCheck = ep.checks?.[0];
+                  return (
+                    <TableRow key={ep.id}>
+                      <TableCell className="font-medium">
+                        <Link href={`/endpoints/${ep.id}`} className="hover:underline flex flex-col">
+                          <span className="font-semibold text-foreground text-sm">{ep.name}</span>
+                          <span className="font-mono text-xs text-muted-foreground truncate max-w-xs">
+                            {ep.url}
+                          </span>
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <StatusBadge status={ep.status} />
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell font-mono text-xs font-semibold">
+                        {ep.method}
+                      </TableCell>
+                      <TableCell className="font-mono text-xs">
+                        {ep.intervalSeconds < 60 ? `${ep.intervalSeconds}s` : `${Math.round(ep.intervalSeconds / 60)}m`}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell font-mono text-xs font-medium text-emerald-500">
+                        {latestCheck?.responseTimeMs !== undefined && latestCheck.responseTimeMs !== null
+                          ? `${Math.round(latestCheck.responseTimeMs)} ms`
+                          : "Pending"}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" render={<Link href={`/endpoints/${ep.id}`} />}>
+                          Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>

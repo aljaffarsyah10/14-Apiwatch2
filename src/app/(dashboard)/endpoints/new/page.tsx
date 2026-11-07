@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { endpointFormSchema, EndpointFormValues, httpMethods } from "@/lib/validations/endpoint.schema";
+import { createEndpoint } from "@/lib/api/endpoints";
 import { toast } from "sonner";
 
 export default function NewEndpointPage() {
@@ -42,6 +43,7 @@ export default function NewEndpointPage() {
       requestHeaders: [],
       requestBody: "",
       expectedBodyContains: "",
+      expectedBodyNotContains: "",
       followRedirects: false,
     },
   });
@@ -53,9 +55,9 @@ export default function NewEndpointPage() {
 
   const currentMethod = useWatch({ control, name: "method" });
 
-  const handleTestNow = () => {
-    const url = getValues("url");
-    if (!url || !url.startsWith("http")) {
+  const handleTestNow = async () => {
+    const values = getValues();
+    if (!values.url || !values.url.startsWith("http")) {
       toast.error("Please enter a valid HTTP/HTTPS URL first.");
       return;
     }
@@ -63,21 +65,53 @@ export default function NewEndpointPage() {
     setTesting(true);
     setTestResult(null);
 
-    setTimeout(() => {
-      setTesting(false);
-      setTestResult({
-        success: true,
-        status: 200,
-        latencyMs: 92,
-        message: "Endpoint responded with HTTP 200 OK within 92ms. All assertions passed.",
+    try {
+      const res = await fetch("/api/endpoints/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
       });
-      toast.success("Health check test passed!");
-    }, 1200);
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setTestResult({
+          success: false,
+          status: data.statusCode,
+          latencyMs: data.responseTimeMs,
+          message: data.error || data.message || "Endpoint probe failed",
+        });
+        toast.error(data.error || "Test check failed");
+      } else {
+        setTestResult({
+          success: true,
+          status: data.statusCode,
+          latencyMs: data.responseTimeMs,
+          message: data.message,
+        });
+        toast.success(`Check succeeded (${data.responseTimeMs}ms)`);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Network error during test";
+      setTestResult({
+        success: false,
+        message: msg,
+      });
+      toast.error(msg);
+    } finally {
+      setTesting(false);
+    }
   };
 
-  const onSubmit = (data: EndpointFormValues) => {
-    toast.success(`Endpoint "${data.name}" created successfully.`);
-    router.push("/endpoints");
+  const onSubmit = async (data: EndpointFormValues) => {
+    try {
+      const created = await createEndpoint(data);
+      toast.success(`Endpoint "${created.name}" created and scheduled for monitoring!`);
+      router.push("/endpoints");
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to create endpoint");
+    }
   };
 
   return (
@@ -98,9 +132,9 @@ export default function NewEndpointPage() {
         {/* Section 1: Basic Information */}
         <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base">1. Basic Information</CardTitle>
+            <CardTitle className="text-base font-semibold">1. Basic Information</CardTitle>
             <CardDescription className="text-xs">
-              Define the target URL and HTTP request parameters.
+              Give your monitored endpoint a recognizable name and public URL target.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -108,7 +142,7 @@ export default function NewEndpointPage() {
               <Label htmlFor="name">Endpoint Name</Label>
               <Input
                 id="name"
-                placeholder="e.g. Stripe Webhook Dispatcher"
+                placeholder="e.g., Auth Service API, Payment Gateway"
                 {...register("name")}
               />
               {errors.name && (
@@ -116,26 +150,26 @@ export default function NewEndpointPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-              <div className="space-y-2 sm:col-span-1">
-                <Label htmlFor="method">Method</Label>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="method">HTTP Method</Label>
                 <select
                   id="method"
                   {...register("method")}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 >
                   {httpMethods.map((m) => (
-                    <option key={m} value={m}>
+                    <option key={m} value={m} className="bg-popover text-popover-foreground">
                       {m}
                     </option>
                   ))}
                 </select>
                 {errors.method && (
-                  <p className="text-xs text-rose-500">{errors.method.message}</p>
+                  <p className="text-xs text-rose-500 font-medium">{errors.method.message}</p>
                 )}
               </div>
 
-              <div className="space-y-2 sm:col-span-3">
+              <div className="md:col-span-3 space-y-2">
                 <Label htmlFor="url">Target URL</Label>
                 <Input
                   id="url"
@@ -150,108 +184,124 @@ export default function NewEndpointPage() {
           </CardContent>
         </Card>
 
-        {/* Section 2: Schedule & Timeout */}
+        {/* Section 2: Monitoring Schedule & Timeouts */}
         <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base">2. Monitoring Schedule & Timeout</CardTitle>
+            <CardTitle className="text-base font-semibold">2. Schedule & Limits</CardTitle>
             <CardDescription className="text-xs">
-              Determine check frequency and maximum allowable request latency.
+              Configure how often APIWatch probes your service and maximum acceptable latency.
             </CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="interval">Check Interval</Label>
-              <select
-                id="interval"
+              <Label htmlFor="intervalSeconds">Check Interval (Seconds)</Label>
+              <Input
+                id="intervalSeconds"
+                type="number"
+                min={60}
+                max={86400}
                 {...register("intervalSeconds", { valueAsNumber: true })}
-                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              >
-                <option value={60}>Every 1 minute</option>
-                <option value={180}>Every 3 minutes</option>
-                <option value={300}>Every 5 minutes (Recommended)</option>
-                <option value={600}>Every 10 minutes</option>
-                <option value={1800}>Every 30 minutes</option>
-                <option value={3600}>Every 1 hour</option>
-              </select>
+              />
+              <p className="text-[11px] text-muted-foreground">Default: 300s (5 minutes). Minimum: 60s.</p>
               {errors.intervalSeconds && (
-                <p className="text-xs text-rose-500">{errors.intervalSeconds.message}</p>
+                <p className="text-xs text-rose-500 font-medium">{errors.intervalSeconds.message}</p>
               )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="timeout">Timeout (Milliseconds)</Label>
+              <Label htmlFor="timeoutMs">Request Timeout (Milliseconds)</Label>
               <Input
-                id="timeout"
+                id="timeoutMs"
                 type="number"
-                min="1000"
-                max="30000"
-                step="500"
+                min={1000}
+                max={30000}
+                step={500}
                 {...register("timeoutMs", { valueAsNumber: true })}
               />
+              <p className="text-[11px] text-muted-foreground">Maximum allowable latency before timing out (1s - 30s).</p>
               {errors.timeoutMs && (
-                <p className="text-xs text-rose-500">{errors.timeoutMs.message}</p>
+                <p className="text-xs text-rose-500 font-medium">{errors.timeoutMs.message}</p>
               )}
+            </div>
+
+            <div className="sm:col-span-2 pt-2 flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="followRedirects"
+                {...register("followRedirects")}
+                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+              />
+              <Label htmlFor="followRedirects" className="text-xs cursor-pointer">
+                Follow HTTP Redirects (up to 3 hops with safe SSRF re-verification)
+              </Label>
             </div>
           </CardContent>
         </Card>
 
-        {/* Section 3: Headers & Body */}
+        {/* Section 3: Headers & Payload */}
         <Card className="border border-border">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-base">3. Custom Request Headers & Payload</CardTitle>
-              <CardDescription className="text-xs">
-                Supply authentication tokens, API keys, or JSON body.
-              </CardDescription>
-            </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => append({ key: "", value: "" })}
-              className="gap-1.5 text-xs"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add Header
-            </Button>
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">3. Headers & Request Payload</CardTitle>
+            <CardDescription className="text-xs">
+              Supply custom headers (e.g., Bearer tokens, API keys) and request payload for POST/PUT.
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {fields.length > 0 && (
-              <div className="space-y-2">
-                {fields.map((field, index) => (
-                  <div key={field.id} className="flex items-center gap-2">
-                    <Input
-                      placeholder="Header Name (e.g. Authorization)"
-                      {...register(`requestHeaders.${index}.key` as const)}
-                      className="flex-1 font-mono text-xs"
-                    />
-                    <Input
-                      placeholder="Header Value (e.g. Bearer token)"
-                      {...register(`requestHeaders.${index}.value` as const)}
-                      className="flex-1 font-mono text-xs"
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="h-4 w-4 text-rose-500" />
-                    </Button>
-                  </div>
-                ))}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs font-semibold">Custom Request Headers</Label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => append({ key: "", value: "" })}
+                  className="gap-1.5 text-xs h-7"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add Header
+                </Button>
               </div>
-            )}
 
-            {currentMethod !== "GET" && currentMethod !== "HEAD" && (
-              <div className="space-y-2">
-                <Label htmlFor="requestBody">Request Body (JSON / Raw Payload)</Label>
+              {fields.length === 0 ? (
+                <p className="text-xs text-muted-foreground italic">No custom headers configured.</p>
+              ) : (
+                <div className="space-y-2">
+                  {fields.map((field, index) => (
+                    <div key={field.id} className="flex items-center gap-2">
+                      <Input
+                        placeholder="Header Name (e.g. Authorization)"
+                        {...register(`requestHeaders.${index}.key` as const)}
+                        className="text-xs"
+                      />
+                      <Input
+                        placeholder="Header Value (e.g. Bearer token_xyz)"
+                        {...register(`requestHeaders.${index}.value` as const)}
+                        className="text-xs"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        onClick={() => remove(index)}
+                        className="text-rose-500 hover:text-rose-600 shrink-0"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {["POST", "PUT", "PATCH"].includes(currentMethod) && (
+              <div className="space-y-2 pt-2 border-t border-border">
+                <Label htmlFor="requestBody">Request Body (JSON / Raw)</Label>
                 <textarea
                   id="requestBody"
                   rows={4}
+                  placeholder='{"ping": "pong"}'
                   {...register("requestBody")}
-                  placeholder={`{\n  "event": "ping"\n}`}
-                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 font-mono text-xs shadow-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-xs font-mono shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                 />
               </div>
             )}
@@ -261,22 +311,20 @@ export default function NewEndpointPage() {
         {/* Section 4: Health Assertions */}
         <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base">4. Health Assertions</CardTitle>
+            <CardTitle className="text-base font-semibold">4. Assertions & Validation</CardTitle>
             <CardDescription className="text-xs">
-              Rules determining whether the endpoint check evaluates to UP or DOWN.
+              Define the criteria required for the probe to consider this endpoint healthy (UP).
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="expectedStatusCodes">Expected Status Codes</Label>
+              <Label htmlFor="expectedStatusCodes">Expected HTTP Status Codes</Label>
               <Input
                 id="expectedStatusCodes"
                 placeholder="200, 201, 204"
                 {...register("expectedStatusCodes")}
               />
-              <p className="text-[11px] text-muted-foreground">
-                Comma-separated HTTP status codes considered healthy.
-              </p>
+              <p className="text-[11px] text-muted-foreground">Comma-separated status codes considered healthy.</p>
               {errors.expectedStatusCodes && (
                 <p className="text-xs text-rose-500 font-medium">{errors.expectedStatusCodes.message}</p>
               )}
@@ -288,6 +336,15 @@ export default function NewEndpointPage() {
                 id="expectedBodyContains"
                 placeholder='e.g. "status":"ok"'
                 {...register("expectedBodyContains")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="expectedBodyNotContains">Response Body Must NOT Contain (Optional)</Label>
+              <Input
+                id="expectedBodyNotContains"
+                placeholder='e.g. "error", "database connection failed"'
+                {...register("expectedBodyNotContains")}
               />
             </div>
           </CardContent>
@@ -308,7 +365,9 @@ export default function NewEndpointPage() {
               <AlertCircle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
             )}
             <div className="space-y-1 text-xs">
-              <p className="font-semibold">Test Health Check Passed</p>
+              <p className="font-semibold">
+                {testResult.success ? "Test Health Check Passed" : "Test Health Check Failed"}
+              </p>
               <p className="text-muted-foreground">{testResult.message}</p>
             </div>
           </div>
@@ -327,7 +386,7 @@ export default function NewEndpointPage() {
             ) : (
               <Play className="h-4 w-4 text-emerald-500" />
             )}
-            {testing ? "Testing URL..." : "Test Endpoint Now"}
+            {testing ? "Probing Target..." : "Test Endpoint Now"}
           </Button>
 
           <div className="flex items-center gap-3">
@@ -335,8 +394,17 @@ export default function NewEndpointPage() {
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting} className="gap-2">
-              <Save className="h-4 w-4" />
-              Save & Start Monitoring
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4" />
+                  Save & Start Monitoring
+                </>
+              )}
             </Button>
           </div>
         </div>

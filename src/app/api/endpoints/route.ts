@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EndpointService } from "@/lib/services/endpoint.service";
-import { getOrCreateDefaultWorkspaceId } from "@/lib/services/workspace.helper";
+import { getSessionOrDefault } from "@/lib/auth/session";
 import { endpointFormSchema } from "@/lib/validations/endpoint.schema";
 import { EndpointStatus } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
-    const workspaceId = await getOrCreateDefaultWorkspaceId();
+    const session = await getSessionOrDefault();
+    const workspaceId = session.workspaceId;
     const searchParams = request.nextUrl.searchParams;
     const search = searchParams.get("search") || undefined;
     const statusParam = searchParams.get("status") || "ALL";
@@ -34,7 +35,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const workspaceId = await getOrCreateDefaultWorkspaceId();
+    const session = await getSessionOrDefault();
+    const workspaceId = session.workspaceId;
     const body = await request.json();
 
     const parsed = endpointFormSchema.safeParse(body);

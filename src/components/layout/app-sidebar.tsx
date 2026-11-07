@@ -2,18 +2,17 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Activity,
-  LayoutDashboard,
-  Radio,
+  Layers,
   AlertTriangle,
-  FileBarChart,
+  FileText,
   Settings,
   PlusCircle,
   ExternalLink,
+  LogOut,
 } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -28,17 +27,19 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { getMe, logoutUser, UserSession } from "@/lib/api/auth";
+import { toast } from "sonner";
 
 const mainNavItems = [
   {
-    title: "Dashboard",
+    title: "Overview",
     url: "/dashboard",
-    icon: LayoutDashboard,
+    icon: Activity,
   },
   {
     title: "Endpoints",
     url: "/endpoints",
-    icon: Radio,
+    icon: Layers,
   },
   {
     title: "Incidents",
@@ -48,7 +49,7 @@ const mainNavItems = [
   {
     title: "Reports",
     url: "/reports",
-    icon: FileBarChart,
+    icon: FileText,
   },
   {
     title: "Settings",
@@ -59,6 +60,38 @@ const mainNavItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = React.useState<UserSession | null>(null);
+
+  React.useEffect(() => {
+    getMe()
+      .then((res) => {
+        if (res?.user) setUser(res.user);
+      })
+      .catch(() => {
+        // quiet in dev
+      });
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logoutUser();
+      toast.success("Logged out successfully");
+      router.push("/login");
+      router.refresh();
+    } catch {
+      router.push("/login");
+    }
+  };
+
+  const displayName = user?.name || "Admin User";
+  const displayEmail = user?.email || "admin@apiwatch.local";
+  const initials = displayName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "AW";
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/80">
@@ -137,17 +170,26 @@ export function AppSidebar() {
       <SidebarFooter className="border-t border-border/50 p-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
-              <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-semibold text-xs">
-                  AW
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid flex-1 text-left text-xs leading-tight">
-                <span className="truncate font-semibold">Personal Workspace</span>
-                <span className="truncate text-[10px] text-muted-foreground">developer@apiwatch.dev</span>
+            <div className="flex items-center justify-between p-1 w-full">
+              <div className="flex items-center gap-2 overflow-hidden">
+                <Avatar className="h-8 w-8 rounded-lg shrink-0">
+                  <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-semibold text-xs">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="grid flex-1 text-left text-xs leading-tight truncate">
+                  <span className="truncate font-semibold">{displayName}</span>
+                  <span className="truncate text-[10px] text-muted-foreground">{displayEmail}</span>
+                </div>
               </div>
-            </SidebarMenuButton>
+              <button
+                onClick={handleLogout}
+                title="Sign Out"
+                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </div>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

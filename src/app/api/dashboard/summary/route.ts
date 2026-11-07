@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { DashboardService } from "@/lib/services/dashboard.service";
-import { getOrCreateDefaultWorkspaceId } from "@/lib/services/workspace.helper";
+import { getSessionOrDefault } from "@/lib/auth/session";
 
 export async function GET() {
   try {
-    const workspaceId = await getOrCreateDefaultWorkspaceId();
-    const summary = await DashboardService.getSummary(workspaceId);
+    const session = await getSessionOrDefault();
+    const summary = await DashboardService.getSummary(session.workspaceId);
 
     return NextResponse.json({
       success: true,
