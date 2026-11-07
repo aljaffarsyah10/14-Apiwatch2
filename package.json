@@ -50,5 +50,10 @@
     "typescript": "^5",
     "vitest": "^5.1.0"
   },
+  "pnpm": {
+    "overrides": {
+      "deepmerge-ts": "^8.0.0"
+    }
+  },
   "packageManager": "pnpm@10.14.0"
 }
