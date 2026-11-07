@@ -95,3 +95,17 @@ export async function triggerManualCheck(id: string): Promise<unknown> {
     method: "POST",
   });
 }
+
+export async function updateEndpointDocs(
+  id: string,
+  data: {
+    description?: string;
+    requestExample?: string;
+    responseExample?: string;
+  }
+): Promise<{ success: boolean; data: unknown }> {
+  return apiFetch(`/api/endpoints/${id}/docs`, {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}

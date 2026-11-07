@@ -24,6 +24,9 @@ export function PublicNavbar() {
           <Link href="/#architecture" className="transition-colors hover:text-foreground">
             Architecture
           </Link>
+          <Link href="/status" className="transition-colors hover:text-foreground">
+            Status
+          </Link>
           <Link href="/#pricing" className="transition-colors hover:text-foreground">
             Pricing
           </Link>

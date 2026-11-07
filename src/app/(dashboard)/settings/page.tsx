@@ -16,6 +16,7 @@ export default function SettingsPage() {
   const [workspaceName, setWorkspaceName] = React.useState("Default Workspace");
   const [alertEmail, setAlertEmail] = React.useState("");
   const [emailAlertsEnabled, setEmailAlertsEnabled] = React.useState(true);
+  const [notifyOnRecovery, setNotifyOnRecovery] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(true);
   const [isSaving, setIsSaving] = React.useState(false);
 
@@ -149,6 +150,23 @@ export default function SettingsPage() {
                   </span>
                   <span className="text-xs text-muted-foreground">
                     Dispatches email notification when consecutive health checks fail.
+                  </span>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={notifyOnRecovery}
+                  onChange={(e) => setNotifyOnRecovery(e.target.checked)}
+                  className="rounded border-border text-primary focus:ring-primary h-4 w-4"
+                />
+                <div>
+                  <span className="text-sm font-medium text-foreground block">
+                    Send notification when service recovers (RESOLVED status)
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    Dispatches confirmation notice when an ongoing incident is resolved.
                   </span>
                 </div>
               </label>

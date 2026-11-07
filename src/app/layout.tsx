@@ -16,9 +16,36 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "APIWatch — Automated API Monitoring & Reliability",
+  title: {
+    default: "APIWatch — Automated API Monitoring & Outage Alerting",
+    template: "%s | APIWatch",
+  },
   description:
-    "Real-time HTTP/HTTPS API monitoring, uptime alerting, and performance observability platform for developers.",
+    "Real-time HTTP/HTTPS API monitoring, multi-layer SSRF defense, 24h uptime reporting, and instant incident alerting for engineering teams.",
+  keywords: [
+    "API monitoring",
+    "uptime monitor",
+    "health check",
+    "incident alert",
+    "latency tracker",
+    "SLA reporting",
+  ],
+  authors: [{ name: "APIWatch Team" }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://apiwatch.io",
+    title: "APIWatch — Automated API Monitoring & Outage Alerting",
+    description:
+      "Real-time HTTP/HTTPS API monitoring with multi-layer SSRF defense and automated email alerts.",
+    siteName: "APIWatch",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "APIWatch — Automated API Monitoring",
+    description:
+      "Real-time HTTP/HTTPS API monitoring, uptime alerting, and performance observability.",
+  },
 };
 
 export default function RootLayout({

@@ -16,6 +16,9 @@ import {
   ShieldCheck,
   Loader2,
   RefreshCw,
+  Copy,
+  Save,
+  BookOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -27,6 +30,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
 import { LatencyChart } from "@/components/endpoints/latency-chart";
 import {
   getEndpointById,
@@ -34,6 +38,7 @@ import {
   resumeEndpoint,
   deleteEndpoint,
   triggerManualCheck,
+  updateEndpointDocs,
   EndpointItem,
 } from "@/lib/api/endpoints";
 import { getEndpointHistory, CheckHistoryItem } from "@/lib/api/history";
@@ -46,12 +51,19 @@ function EndpointDetailContent() {
 
   const [endpoint, setEndpoint] = React.useState<EndpointItem | null>(null);
   const [history, setHistory] = React.useState<CheckHistoryItem[]>([]);
+  const [historyFilter, setHistoryFilter] = React.useState<string>("ALL");
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [isRunningCheck, setIsRunningCheck] = React.useState(false);
   const [selectedCheck, setSelectedCheck] = React.useState<CheckHistoryItem | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [refreshIndex, setRefreshIndex] = React.useState(0);
+
+  // Documentation state
+  const [docDescription, setDocDescription] = React.useState("");
+  const [docRequestExample, setDocRequestExample] = React.useState("");
+  const [docResponseExample, setDocResponseExample] = React.useState("");
+  const [isSavingDocs, setIsSavingDocs] = React.useState(false);
 
   React.useEffect(() => {
     if (!endpointId) return;
@@ -65,6 +77,11 @@ function EndpointDetailContent() {
         if (!ignore) {
           setEndpoint(ep);
           setHistory(hist);
+          if (ep.documentation) {
+            setDocDescription(ep.documentation.description || "");
+            setDocRequestExample(ep.documentation.requestExample || "");
+            setDocResponseExample(ep.documentation.responseExample || "");
+          }
           setIsLoading(false);
         }
       } catch (err: unknown) {
@@ -93,7 +110,6 @@ function EndpointDetailContent() {
     try {
       await triggerManualCheck(endpoint.id);
       toast.success("Health check executed! Reloading check results...");
-      // Wait briefly for DB check to commit, then reload history
       setTimeout(() => {
         handleRefresh();
       }, 500);
@@ -133,6 +149,30 @@ function EndpointDetailContent() {
     }
   };
 
+  const handleSaveDocs = async () => {
+    if (!endpoint) return;
+    try {
+      setIsSavingDocs(true);
+      await updateEndpointDocs(endpoint.id, {
+        description: docDescription,
+        requestExample: docRequestExample,
+        responseExample: docResponseExample,
+      });
+      toast.success("Service documentation updated successfully.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to save documentation");
+    } finally {
+      setIsSavingDocs(false);
+    }
+  };
+
+  const handleCopyCurl = () => {
+    if (!endpoint) return;
+    const curl = `curl -X ${endpoint.method} "${endpoint.url}" -H "Accept: application/json"`;
+    navigator.clipboard.writeText(curl);
+    toast.success("cURL command copied to clipboard!");
+  };
+
   if (isLoading && !endpoint) {
     return (
       <div className="space-y-6">
@@ -142,8 +182,8 @@ function EndpointDetailContent() {
             Back to Endpoints
           </Button>
         </div>
-        <LoadingSkeleton variant="card" />
-        <LoadingSkeleton variant="table" />
+        <LoadingSkeleton type="card" />
+        <LoadingSkeleton type="table" />
       </div>
     );
   }
@@ -152,7 +192,7 @@ function EndpointDetailContent() {
     return (
       <ErrorState
         title="Endpoint Not Found"
-        description={error || "The requested endpoint does not exist or has been deleted."}
+        message={error || "The requested endpoint does not exist or has been deleted."}
         onRetry={handleRefresh}
       />
     );
@@ -174,6 +214,11 @@ function EndpointDetailContent() {
     { time: "12:00", latency: 0 },
     { time: "18:00", latency: 0 },
   ];
+
+  const filteredHistory = history.filter((item) => {
+    if (historyFilter === "ALL") return true;
+    return item.status === historyFilter;
+  });
 
   return (
     <div className="space-y-6">
@@ -303,19 +348,36 @@ function EndpointDetailContent() {
           </Card>
         </TabsContent>
 
-        {/* Tab 2: History */}
+        {/* Tab 2: History with Filtering */}
         <TabsContent value="history">
           <Card className="border border-border">
-            <CardHeader className="py-4">
-              <CardTitle className="text-base">Check History</CardTitle>
-              <CardDescription className="text-xs">
-                Detailed audit trail of recent HTTP probes and assertion evaluations.
-              </CardDescription>
+            <CardHeader className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <CardTitle className="text-base">Check History</CardTitle>
+                <CardDescription className="text-xs">
+                  Detailed audit trail of recent HTTP probes and assertion evaluations.
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs bg-muted/40 p-1 rounded-lg border border-border">
+                {["ALL", "SUCCESS", "FAILED", "TIMEOUT", "ERROR"].map((st) => (
+                  <button
+                    key={st}
+                    onClick={() => setHistoryFilter(st)}
+                    className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${
+                      historyFilter === st
+                        ? "bg-background text-foreground font-semibold shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
             </CardHeader>
             <CardContent className="p-0">
-              {history.length === 0 ? (
+              {filteredHistory.length === 0 ? (
                 <div className="py-12 text-center text-sm text-muted-foreground">
-                  No check records logged yet. Click &quot;Run Check Now&quot; to perform an immediate probe.
+                  No check records matching the &quot;{historyFilter}&quot; filter.
                 </div>
               ) : (
                 <Table>
@@ -330,7 +392,7 @@ function EndpointDetailContent() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {history.map((item) => (
+                    {filteredHistory.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-mono text-xs text-muted-foreground">
                           {new Date(item.checkedAt).toLocaleString()}
@@ -384,30 +446,82 @@ function EndpointDetailContent() {
           </Card>
         </TabsContent>
 
-        {/* Tab 3: Documentation */}
-        <TabsContent value="documentation">
+        {/* Tab 3: Documentation & Contract Notes */}
+        <TabsContent value="documentation" className="space-y-4">
           <Card className="border border-border">
-            <CardHeader>
-              <CardTitle className="text-base">Service Contract Documentation</CardTitle>
-              <CardDescription className="text-xs">
-                Internal team documentation and payload contracts.
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between py-4">
+              <div>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  Service Contract & Documentation
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Maintain team notes, payload schema, and testing instructions for this service.
+                </CardDescription>
+              </div>
+              <Button
+                size="sm"
+                onClick={handleSaveDocs}
+                disabled={isSavingDocs}
+                className="gap-1.5 text-xs"
+              >
+                {isSavingDocs ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                Save Notes
+              </Button>
             </CardHeader>
-            <CardContent className="space-y-4 text-sm">
-              <div className="space-y-1">
-                <span className="text-xs font-semibold text-muted-foreground uppercase">Target URL</span>
-                <p className="font-mono text-xs p-2 bg-muted/40 rounded border border-border">
-                  {endpoint.method} {endpoint.url}
-                </p>
+            <CardContent className="space-y-4">
+              <div className="space-y-1.5">
+                <span className="text-xs font-semibold uppercase text-muted-foreground">
+                  Quick cURL Command
+                </span>
+                <div className="flex items-center gap-2 bg-muted/40 p-2.5 rounded-lg border border-border">
+                  <code className="text-xs font-mono text-foreground flex-1 truncate">
+                    curl -X {endpoint.method} &quot;{endpoint.url}&quot; -H &quot;Accept: application/json&quot;
+                  </code>
+                  <Button variant="ghost" size="icon-sm" onClick={handleCopyCurl} title="Copy cURL">
+                    <Copy className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
 
-              <div className="space-y-1 pt-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase">Security & Guard Constraints</span>
-                <div className="rounded-lg bg-muted/40 p-3 font-mono text-xs space-y-1 text-muted-foreground border border-border">
-                  <p>• Outbound IP Pinning enforced by Worker.</p>
-                  <p>• Max response threshold: 1 MB (body snippets truncated to 4 KB).</p>
-                  <p>• Redirect safety: {endpoint.config?.followRedirects ? "Follows redirects with SSRF check" : "Redirects disabled"}.</p>
-                  <p>• Expected Status Codes: {endpoint.config?.expectedStatusCodes?.join(", ") || "200"}.</p>
+              <div className="space-y-1.5">
+                <span className="text-xs font-semibold uppercase text-muted-foreground">
+                  Service Description
+                </span>
+                <Textarea
+                  placeholder="Describe what this endpoint does, dependent services, on-call instructions..."
+                  value={docDescription}
+                  onChange={(e) => setDocDescription(e.target.value)}
+                  rows={3}
+                  className="text-xs"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <span className="text-xs font-semibold uppercase text-muted-foreground">
+                    Request Example (JSON / Params)
+                  </span>
+                  <Textarea
+                    placeholder='{"key": "value"}'
+                    value={docRequestExample}
+                    onChange={(e) => setDocRequestExample(e.target.value)}
+                    rows={6}
+                    className="font-mono text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <span className="text-xs font-semibold uppercase text-muted-foreground">
+                    Expected Response Example (JSON)
+                  </span>
+                  <Textarea
+                    placeholder='{"status": "ok", "code": 200}'
+                    value={docResponseExample}
+                    onChange={(e) => setDocResponseExample(e.target.value)}
+                    rows={6}
+                    className="font-mono text-xs"
+                  />
                 </div>
               </div>
             </CardContent>
@@ -440,7 +554,7 @@ function EndpointDetailContent() {
         </TabsContent>
       </Tabs>
 
-      {/* Raw Check Inspector Modal */}
+      {/* Safe Raw Check Inspector Modal */}
       <Dialog open={!!selectedCheck} onOpenChange={(open) => !open && setSelectedCheck(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -470,7 +584,7 @@ function EndpointDetailContent() {
                 </div>
                 <div>
                   <span className="text-muted-foreground">Outcome:</span>{" "}
-                  <span className={selectedCheck.isSuccess ? "text-emerald-500" : "text-rose-500"}>
+                  <span className={selectedCheck.isSuccess ? "text-emerald-500 font-semibold" : "text-rose-500 font-semibold"}>
                     {selectedCheck.status}
                   </span>
                 </div>
@@ -478,15 +592,15 @@ function EndpointDetailContent() {
 
               {selectedCheck.errorMessage && (
                 <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-500">
-                  <span className="font-semibold">Error Message:</span> {selectedCheck.errorMessage}
+                  <span className="font-semibold">Failure Cause:</span> {selectedCheck.errorMessage}
                 </div>
               )}
 
               <div className="space-y-1">
                 <span className="text-muted-foreground uppercase text-[10px] font-semibold">
-                  Response Body Snippet (Max 4 KB)
+                  Safe Response Body Preview (Sanitized, Escaped)
                 </span>
-                <pre className="p-3 rounded-lg bg-zinc-950 text-zinc-100 overflow-x-auto max-h-56 text-[11px] whitespace-pre-wrap">
+                <pre className="p-3 rounded-lg bg-zinc-950 text-zinc-100 overflow-x-auto max-h-56 text-[11px] whitespace-pre-wrap select-all font-mono">
                   {selectedCheck.assertionResults?.bodySnippet || "No response body recorded"}
                 </pre>
               </div>
@@ -510,7 +624,7 @@ function EndpointDetailContent() {
 
 export default function EndpointDetailPage() {
   return (
-    <React.Suspense fallback={<LoadingSkeleton variant="card" />}>
+    <React.Suspense fallback={<LoadingSkeleton type="card" />}>
       <EndpointDetailContent />
     </React.Suspense>
   );

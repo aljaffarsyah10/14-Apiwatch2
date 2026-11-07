@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Download, RefreshCw, BarChart2 } from "lucide-react";
+import { Download, RefreshCw, BarChart2, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -15,6 +15,7 @@ import { toast } from "sonner";
 
 export default function ReportsPage() {
   const [data, setData] = React.useState<ReportsData | null>(null);
+  const [period, setPeriod] = React.useState<"24h" | "7d" | "30d">("30d");
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [refreshIndex, setRefreshIndex] = React.useState(0);
@@ -46,33 +47,16 @@ export default function ReportsPage() {
     setRefreshIndex((prev) => prev + 1);
   }, []);
 
-  const handleExport = () => {
-    if (!data || data.endpoints.length === 0) {
-      toast.info("No monitoring data to export.");
-      return;
-    }
-
-    const headers = ["Endpoint Name", "Method", "URL", "Status", "Uptime %", "Avg Latency (ms)", "Total Checks"];
-    const rows = data.endpoints.map((e) => [
-      `"${e.name.replace(/"/g, '""')}"`,
-      e.method,
-      `"${e.url}"`,
-      e.status,
-      `${e.uptimePercentage}%`,
-      e.avgResponseTime,
-      e.totalChecks,
-    ]);
-
-    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
+  const handleExportCsv = () => {
+    toast.info("Preparing safe CSV export...");
+    const downloadUrl = `/api/reports/export?period=${period}`;
     const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", `apiwatch-uptime-report-${new Date().toISOString().split("T")[0]}.csv`);
+    link.href = downloadUrl;
+    link.setAttribute("download", `apiwatch-report-${period}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    toast.success("CSV report downloaded successfully.");
+    toast.success("CSV export initiated with injection defense.");
   };
 
   if (isLoading) {
@@ -83,8 +67,8 @@ export default function ReportsPage() {
           description="Availability metrics, downtime summary, and latency percentiles."
         />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <LoadingSkeleton variant="card" />
-          <LoadingSkeleton variant="card" />
+          <LoadingSkeleton type="card" />
+          <LoadingSkeleton type="card" />
         </div>
       </div>
     );
@@ -94,7 +78,7 @@ export default function ReportsPage() {
     return (
       <ErrorState
         title="Could not load reports"
-        description={error || "An error occurred while computing report metrics"}
+        message={error || "An error occurred while computing report metrics"}
         onRetry={handleRefresh}
       />
     );
@@ -106,14 +90,42 @@ export default function ReportsPage() {
         title="Uptime Reports"
         description="Availability metrics, downtime summary, and latency performance across all endpoints."
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center rounded-lg border border-border bg-muted/40 p-0.5 text-xs">
+            <button
+              onClick={() => setPeriod("24h")}
+              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                period === "24h" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              24h
+            </button>
+            <button
+              onClick={() => setPeriod("7d")}
+              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                period === "7d" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              7d
+            </button>
+            <button
+              onClick={() => setPeriod("30d")}
+              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+                period === "30d" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              30d
+            </button>
+          </div>
+
           <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-1.5 text-xs">
             <RefreshCw className="h-3.5 w-3.5" />
             Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={handleExport} className="gap-2 text-xs">
+
+          <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-2 text-xs">
             <Download className="h-4 w-4" />
-            Export CSV
+            Export Safe CSV
           </Button>
         </div>
       </PageHeader>
@@ -123,7 +135,7 @@ export default function ReportsPage() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <BarChart2 className="h-4 w-4 text-emerald-500" />
-              SLA Availability Compliance
+              SLA Availability Compliance ({period.toUpperCase()})
             </CardTitle>
             <CardDescription className="text-xs">
               Weighted uptime percentage calculated from recent health checks.
@@ -150,9 +162,12 @@ export default function ReportsPage() {
 
         <Card className="border border-border">
           <CardHeader>
-            <CardTitle className="text-base">Latency Performance</CardTitle>
+            <CardTitle className="text-base flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-primary" />
+              Latency Performance
+            </CardTitle>
             <CardDescription className="text-xs">
-              Response times across monitored endpoints.
+              Aggregate response times across monitored services.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 font-mono text-sm">
@@ -163,6 +178,10 @@ export default function ReportsPage() {
             <div className="flex justify-between py-1 border-b border-border/50">
               <span className="text-muted-foreground">Total Monitored Services:</span>
               <span className="font-semibold text-foreground">{data.totalEndpoints}</span>
+            </div>
+            <div className="flex justify-between py-1 border-b border-border/50">
+              <span className="text-muted-foreground">CSV Injection Defense:</span>
+              <span className="font-semibold text-emerald-500">Enabled (CWE-1236)</span>
             </div>
           </CardContent>
         </Card>
