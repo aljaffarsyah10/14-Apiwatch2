@@ -230,60 +230,57 @@ function EndpointDetailContent() {
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-border">
-        <div className="space-y-1">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
               {endpoint.name}
             </h1>
             <StatusBadge status={endpoint.status} />
           </div>
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="font-mono text-sm text-muted-foreground">
             {endpoint.method} {endpoint.url} • Interval: {endpoint.intervalSeconds}s • Timeout: {endpoint.timeoutMs}ms
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           <Button
-            size="sm"
             variant="outline"
             onClick={handleTriggerCheck}
             disabled={isRunningCheck}
-            className="gap-1.5 text-xs"
+            className="gap-2"
           >
             {isRunningCheck ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Play className="h-3.5 w-3.5 text-emerald-500" />
+              <Play className="h-4 w-4 text-success" />
             )}
             Run Check Now
           </Button>
 
           <Button
-            size="sm"
             variant="outline"
             onClick={handleTogglePause}
-            className="gap-1.5 text-xs"
+            className="gap-2"
           >
             {endpoint.status === "PAUSED" ? (
               <>
-                <Play className="h-3.5 w-3.5 text-emerald-500" />
+                <Play className="h-4 w-4 text-success" />
                 Resume Monitoring
               </>
             ) : (
               <>
-                <Pause className="h-3.5 w-3.5 text-amber-500" />
+                <Pause className="h-4 w-4 text-warning" />
                 Pause Checks
               </>
             )}
           </Button>
 
           <Button
-            size="sm"
             variant="outline"
             render={<Link href={`/endpoints/${endpoint.id}/edit`} />}
-            className="gap-1.5 text-xs"
+            className="gap-2"
           >
-            <Edit className="h-3.5 w-3.5" />
+            <Edit className="h-4 w-4" />
             Edit
           </Button>
         </div>
@@ -301,25 +298,25 @@ function EndpointDetailContent() {
         {/* Tab 1: Overview */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Card className="border border-border">
+            <Card>
               <CardHeader className="py-3">
-                <CardDescription className="text-xs">Uptime Availability</CardDescription>
-                <CardTitle className="text-2xl font-bold font-mono text-emerald-500">
+                <CardDescription>Uptime Availability</CardDescription>
+                <CardTitle className="text-2xl font-bold font-mono text-success">
                   {uptimeRatio}%
                 </CardTitle>
               </CardHeader>
             </Card>
-            <Card className="border border-border">
+            <Card>
               <CardHeader className="py-3">
-                <CardDescription className="text-xs">Latest Response Time</CardDescription>
+                <CardDescription>Latest Response Time</CardDescription>
                 <CardTitle className="text-2xl font-bold font-mono">
                   {history[0]?.responseTimeMs ? `${Math.round(history[0].responseTimeMs)} ms` : "—"}
                 </CardTitle>
               </CardHeader>
             </Card>
-            <Card className="border border-border">
+            <Card>
               <CardHeader className="py-3">
-                <CardDescription className="text-xs">SSRF Protection</CardDescription>
+                <CardDescription>SSRF Protection</CardDescription>
                 <CardTitle className="text-sm font-semibold flex items-center gap-1.5 text-primary">
                   <ShieldCheck className="h-4 w-4" /> Multi-layer IP Pinning
                 </CardTitle>
@@ -327,14 +324,14 @@ function EndpointDetailContent() {
             </Card>
           </div>
 
-          <Card className="border border-border">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between py-4">
               <div>
                 <CardTitle className="text-base font-semibold flex items-center gap-2">
                   <Activity className="h-4 w-4 text-primary" />
                   Recent Probe Latency
                 </CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription>
                   Historical response times recorded by the background monitoring worker.
                 </CardDescription>
               </div>
@@ -350,11 +347,11 @@ function EndpointDetailContent() {
 
         {/* Tab 2: History with Filtering */}
         <TabsContent value="history">
-          <Card className="border border-border">
+          <Card>
             <CardHeader className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <CardTitle className="text-base">Check History</CardTitle>
-                <CardDescription className="text-xs">
+                <CardTitle className="text-lg">Check History</CardTitle>
+                <CardDescription>
                   Detailed audit trail of recent HTTP probes and assertion evaluations.
                 </CardDescription>
               </div>
@@ -363,7 +360,7 @@ function EndpointDetailContent() {
                   <button
                     key={st}
                     onClick={() => setHistoryFilter(st)}
-                    className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${
+                    className={`px-2 py-0.5 rounded text-xs font-mono transition-colors ${
                       historyFilter === st
                         ? "bg-background text-foreground font-semibold shadow-xs"
                         : "text-muted-foreground hover:text-foreground"
@@ -394,7 +391,7 @@ function EndpointDetailContent() {
                   <TableBody>
                     {filteredHistory.map((item) => (
                       <TableRow key={item.id}>
-                        <TableCell className="font-mono text-xs text-muted-foreground">
+                        <TableCell className="tabular-nums text-sm text-muted-foreground">
                           {new Date(item.checkedAt).toLocaleString()}
                         </TableCell>
                         <TableCell>
@@ -402,27 +399,27 @@ function EndpointDetailContent() {
                             variant="outline"
                             className={
                               item.isSuccess
-                                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 font-mono text-[11px]"
-                                : "bg-rose-500/10 text-rose-500 border-rose-500/30 font-mono text-[11px]"
+                                ? "bg-success/10 text-success border-success/30 font-semibold text-xs"
+                                : "bg-destructive/10 text-destructive border-destructive/30 font-semibold text-xs"
                             }
                           >
                             {item.status}
                           </Badge>
                         </TableCell>
-                        <TableCell className="font-mono text-xs font-semibold">
+                        <TableCell className="font-mono text-sm font-semibold">
                           {item.statusCode || "—"}
                         </TableCell>
-                        <TableCell className="font-mono text-xs">
+                        <TableCell className="tabular-nums text-sm font-medium">
                           {item.responseTimeMs !== null ? `${Math.round(item.responseTimeMs)} ms` : "—"}
                         </TableCell>
-                        <TableCell className="text-xs">
+                        <TableCell className="text-sm">
                           {item.isSuccess ? (
-                            <span className="text-emerald-500 flex items-center gap-1">
-                              <CheckCircle2 className="h-3.5 w-3.5" /> All passed
+                            <span className="text-success flex items-center gap-1 font-medium">
+                              <CheckCircle2 className="h-4 w-4" /> All passed
                             </span>
                           ) : (
-                            <span className="text-rose-500 flex items-center gap-1">
-                              <AlertTriangle className="h-3.5 w-3.5" /> {item.errorMessage || "Check failed"}
+                            <span className="text-destructive flex items-center gap-1 font-medium">
+                              <AlertTriangle className="h-4 w-4" /> {item.errorMessage || "Check failed"}
                             </span>
                           )}
                         </TableCell>
@@ -431,9 +428,9 @@ function EndpointDetailContent() {
                             variant="ghost"
                             size="sm"
                             onClick={() => setSelectedCheck(item)}
-                            className="gap-1 text-xs"
+                            className="gap-1.5"
                           >
-                            <Eye className="h-3.5 w-3.5" />
+                            <Eye className="h-4 w-4" />
                             Inspect
                           </Button>
                         </TableCell>
@@ -448,44 +445,43 @@ function EndpointDetailContent() {
 
         {/* Tab 3: Documentation & Contract Notes */}
         <TabsContent value="documentation" className="space-y-4">
-          <Card className="border border-border">
+          <Card>
             <CardHeader className="flex flex-row items-center justify-between py-4">
               <div>
                 <CardTitle className="text-base flex items-center gap-2">
                   <BookOpen className="h-4 w-4 text-primary" />
                   Service Contract & Documentation
                 </CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription>
                   Maintain team notes, payload schema, and testing instructions for this service.
                 </CardDescription>
               </div>
               <Button
-                size="sm"
                 onClick={handleSaveDocs}
                 disabled={isSavingDocs}
-                className="gap-1.5 text-xs"
+                className="gap-2"
               >
-                {isSavingDocs ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                {isSavingDocs ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Save Notes
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1.5">
-                <span className="text-xs font-semibold uppercase text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Quick cURL Command
                 </span>
-                <div className="flex items-center gap-2 bg-muted/40 p-2.5 rounded-lg border border-border">
-                  <code className="text-xs font-mono text-foreground flex-1 truncate">
+                <div className="flex items-center gap-2 bg-muted/40 p-3 rounded-lg border border-border">
+                  <code className="text-sm font-mono text-foreground flex-1 truncate">
                     curl -X {endpoint.method} &quot;{endpoint.url}&quot; -H &quot;Accept: application/json&quot;
                   </code>
-                  <Button variant="ghost" size="icon-sm" onClick={handleCopyCurl} title="Copy cURL">
-                    <Copy className="h-3.5 w-3.5" />
+                  <Button variant="ghost" size="icon" onClick={handleCopyCurl} title="Copy cURL">
+                    <Copy className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <span className="text-xs font-semibold uppercase text-muted-foreground">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Service Description
                 </span>
                 <Textarea
@@ -493,13 +489,13 @@ function EndpointDetailContent() {
                   value={docDescription}
                   onChange={(e) => setDocDescription(e.target.value)}
                   rows={3}
-                  className="text-xs"
+                  className="text-sm"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <span className="text-xs font-semibold uppercase text-muted-foreground">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Request Example (JSON / Params)
                   </span>
                   <Textarea
@@ -507,12 +503,12 @@ function EndpointDetailContent() {
                     value={docRequestExample}
                     onChange={(e) => setDocRequestExample(e.target.value)}
                     rows={6}
-                    className="font-mono text-xs"
+                    className="font-mono text-sm"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <span className="text-xs font-semibold uppercase text-muted-foreground">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                     Expected Response Example (JSON)
                   </span>
                   <Textarea
@@ -520,7 +516,7 @@ function EndpointDetailContent() {
                     value={docResponseExample}
                     onChange={(e) => setDocResponseExample(e.target.value)}
                     rows={6}
-                    className="font-mono text-xs"
+                    className="font-mono text-sm"
                   />
                 </div>
               </div>
@@ -530,12 +526,12 @@ function EndpointDetailContent() {
 
         {/* Tab 4: Danger Zone */}
         <TabsContent value="settings">
-          <Card className="border border-rose-500/30 bg-rose-500/5">
+          <Card className="border border-destructive/30 bg-destructive/5">
             <CardHeader>
-              <CardTitle className="text-base text-rose-600 dark:text-rose-400">
+              <CardTitle className="text-base text-destructive">
                 Danger Zone
               </CardTitle>
-              <CardDescription className="text-xs">
+              <CardDescription>
                 Permanently stop checks and delete all historic logs for this endpoint.
               </CardDescription>
             </CardHeader>
@@ -558,49 +554,49 @@ function EndpointDetailContent() {
       <Dialog open={!!selectedCheck} onOpenChange={(open) => !open && setSelectedCheck(null)}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="text-base flex items-center gap-2">
-              <Eye className="h-4 w-4 text-primary" />
+            <DialogTitle className="text-lg flex items-center gap-2">
+              <Eye className="h-5 w-5 text-primary" />
               Check Execution Inspector
             </DialogTitle>
-            <DialogDescription className="text-xs">
+            <DialogDescription className="text-sm">
               Raw HTTP response and diagnostic metadata recorded for check ID {selectedCheck?.id}
             </DialogDescription>
           </DialogHeader>
 
           {selectedCheck && (
-            <div className="space-y-4 text-xs font-mono">
-              <div className="grid grid-cols-2 gap-2 bg-muted/30 p-3 rounded-lg border border-border">
+            <div className="space-y-4 text-sm font-mono">
+              <div className="grid grid-cols-2 gap-3 bg-muted/30 p-4 rounded-xl border border-border">
                 <div>
                   <span className="text-muted-foreground">HTTP Status:</span>{" "}
-                  <span className="font-semibold">{selectedCheck.statusCode || "N/A"}</span>
+                  <span className="font-semibold text-foreground">{selectedCheck.statusCode || "N/A"}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Response Time:</span>{" "}
-                  <span className="font-semibold">{selectedCheck.responseTimeMs} ms</span>
+                  <span className="font-semibold text-foreground">{selectedCheck.responseTimeMs} ms</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Timestamp:</span>{" "}
-                  <span>{new Date(selectedCheck.checkedAt).toISOString()}</span>
+                  <span className="text-foreground">{new Date(selectedCheck.checkedAt).toISOString()}</span>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Outcome:</span>{" "}
-                  <span className={selectedCheck.isSuccess ? "text-emerald-500 font-semibold" : "text-rose-500 font-semibold"}>
+                  <span className={selectedCheck.isSuccess ? "text-success font-semibold" : "text-destructive font-semibold"}>
                     {selectedCheck.status}
                   </span>
                 </div>
               </div>
 
               {selectedCheck.errorMessage && (
-                <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-500">
+                <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm font-sans">
                   <span className="font-semibold">Failure Cause:</span> {selectedCheck.errorMessage}
                 </div>
               )}
 
-              <div className="space-y-1">
-                <span className="text-muted-foreground uppercase text-[10px] font-semibold">
+              <div className="space-y-2 font-sans">
+                <span className="text-muted-foreground uppercase text-xs font-semibold tracking-wider block">
                   Safe Response Body Preview (Sanitized, Escaped)
                 </span>
-                <pre className="p-3 rounded-lg bg-zinc-950 text-zinc-100 overflow-x-auto max-h-56 text-[11px] whitespace-pre-wrap select-all font-mono">
+                <pre className="p-3.5 rounded-lg bg-zinc-950 text-zinc-100 overflow-x-auto max-h-56 text-xs whitespace-pre-wrap select-all font-mono">
                   {selectedCheck.assertionResults?.bodySnippet || "No response body recorded"}
                 </pre>
               </div>

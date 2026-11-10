@@ -92,28 +92,28 @@ export default function IncidentsPage() {
         title="Downtime & Incidents"
         description="Historical log of service outages, failure reasons, and resolution times."
       >
-        <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-1.5 text-xs">
-          <RefreshCw className="h-3.5 w-3.5" />
+        <Button variant="outline" onClick={handleRefresh}>
+          <RefreshCw />
           Refresh
         </Button>
       </PageHeader>
 
       {/* Active Outage Banner if any exist */}
       {activeIncidents.length > 0 && (
-        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-5 flex items-start gap-4">
-          <div className="p-2 rounded-lg bg-rose-500/20 text-rose-500 shrink-0">
-            <AlertTriangle className="h-5 w-5 animate-pulse" />
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 p-5 flex items-start gap-4">
+          <div className="p-2 rounded-lg bg-destructive/20 text-destructive shrink-0">
+            <AlertTriangle className="h-5 w-5" />
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-semibold text-rose-600 dark:text-rose-400">
+              <h3 className="text-base font-semibold text-destructive">
                 Active Outage: {activeIncidents[0].endpoint.name}
               </h3>
-              <Badge variant="destructive" className="text-[10px]">
+              <Badge variant="destructive" className="text-xs font-semibold">
                 ONGOING
               </Badge>
             </div>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground mt-1">
               {activeIncidents[0].failureReason || "Failing health checks"} • Started{" "}
               {new Date(activeIncidents[0].startedAt).toLocaleString()}. Automatic alerts dispatched.
             </p>
@@ -121,10 +121,10 @@ export default function IncidentsPage() {
         </div>
       )}
 
-      <Card className="border border-border">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-base">Incident History</CardTitle>
-          <CardDescription className="text-xs">
+          <CardTitle className="text-lg">Incident History</CardTitle>
+          <CardDescription>
             Review previous downtime events and root causes across your services.
           </CardDescription>
         </CardHeader>
@@ -132,7 +132,7 @@ export default function IncidentsPage() {
           {incidents.length === 0 ? (
             <div className="py-12">
               <EmptyState
-                icon={<CheckCircle className="h-10 w-10 text-emerald-500" />}
+                icon={<CheckCircle className="h-10 w-10 text-success" />}
                 title="No incidents recorded"
                 description="All your monitored services are running smoothly without any recorded downtime events."
               />
@@ -152,28 +152,28 @@ export default function IncidentsPage() {
                 {incidents.map((inc) => (
                   <TableRow key={inc.id}>
                     <TableCell className="font-semibold text-sm">
-                      <Link href={`/endpoints/${inc.endpointId}`} className="hover:underline">
+                      <Link href={`/endpoints/${inc.endpointId}`} className="hover:text-primary transition-colors">
                         {inc.endpoint.name}
                       </Link>
                     </TableCell>
-                    <TableCell className="text-xs font-mono">
+                    <TableCell className="text-muted-foreground tabular-nums">
                       {new Date(inc.startedAt).toLocaleString()}
                     </TableCell>
-                    <TableCell className="text-xs font-mono">
+                    <TableCell className="text-muted-foreground tabular-nums">
                       {inc.resolvedAt ? new Date(inc.resolvedAt).toLocaleString() : "—"}
                     </TableCell>
-                    <TableCell className="text-xs font-mono text-muted-foreground">
+                    <TableCell className="text-muted-foreground">
                       {inc.failureReason || "Health check failed"}
                     </TableCell>
                     <TableCell className="text-right">
                       {inc.status === "OPEN" ? (
-                        <Badge variant="destructive" className="text-[10px]">
+                        <Badge variant="destructive" className="text-xs">
                           OPEN
                         </Badge>
                       ) : (
                         <Badge
                           variant="outline"
-                          className="text-emerald-500 border-emerald-500/30 text-[10px]"
+                          className="text-success border-success/30 text-xs"
                         >
                           RESOLVED
                         </Badge>

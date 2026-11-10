@@ -85,13 +85,13 @@ export default function SettingsPage() {
       />
 
       <form onSubmit={handleSave} className="space-y-6">
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Shield className="h-5 w-5 text-primary" />
               Workspace Profile
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription>
               Manage workspace identity and team association.
             </CardDescription>
           </CardHeader>
@@ -107,20 +107,20 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Bell className="h-4 w-4 text-amber-500" />
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Bell className="h-5 w-5 text-warning" />
               Email Notification Alerts
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription>
               Configure alert dispatching when monitored endpoints experience outages.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="flex items-center gap-2">
-                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                <Mail className="h-4 w-4 text-muted-foreground" />
                 Alert Recipient Email
               </Label>
               <Input
@@ -131,41 +131,41 @@ export default function SettingsPage() {
                 placeholder="alerts@company.com"
                 required
               />
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-sm text-muted-foreground">
                 Automated incident alerts will be dispatched to this address.
               </p>
             </div>
 
-            <div className="pt-2 space-y-3">
-              <label className="flex items-center gap-3 cursor-pointer">
+            <div className="pt-2 space-y-4">
+              <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={emailAlertsEnabled}
                   onChange={(e) => setEmailAlertsEnabled(e.target.checked)}
-                  className="rounded border-border text-primary focus:ring-primary h-4 w-4"
+                  className="rounded border-border text-primary focus:ring-primary h-4 w-4 mt-0.5"
                 />
                 <div>
-                  <span className="text-sm font-medium text-foreground block">
+                  <span className="text-sm font-semibold text-foreground block">
                     Send automated alert on outage (DOWN status)
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     Dispatches email notification when consecutive health checks fail.
                   </span>
                 </div>
               </label>
 
-              <label className="flex items-center gap-3 cursor-pointer">
+              <label className="flex items-start gap-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={notifyOnRecovery}
                   onChange={(e) => setNotifyOnRecovery(e.target.checked)}
-                  className="rounded border-border text-primary focus:ring-primary h-4 w-4"
+                  className="rounded border-border text-primary focus:ring-primary h-4 w-4 mt-0.5"
                 />
                 <div>
-                  <span className="text-sm font-medium text-foreground block">
+                  <span className="text-sm font-semibold text-foreground block">
                     Send notification when service recovers (RESOLVED status)
                   </span>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-sm text-muted-foreground">
                     Dispatches confirmation notice when an ongoing incident is resolved.
                   </span>
                 </div>

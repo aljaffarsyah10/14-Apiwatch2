@@ -91,10 +91,10 @@ export default function ReportsPage() {
         description="Availability metrics, downtime summary, and latency performance across all endpoints."
       >
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center rounded-lg border border-border bg-muted/40 p-0.5 text-xs">
+          <div className="flex items-center rounded-lg border border-border bg-muted/40 p-1 text-xs">
             <button
               onClick={() => setPeriod("24h")}
-              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
                 period === "24h" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -102,7 +102,7 @@ export default function ReportsPage() {
             </button>
             <button
               onClick={() => setPeriod("7d")}
-              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
                 period === "7d" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -110,7 +110,7 @@ export default function ReportsPage() {
             </button>
             <button
               onClick={() => setPeriod("30d")}
-              className={`px-2.5 py-1 rounded-md font-medium transition-colors ${
+              className={`px-3 py-1 rounded-md font-semibold transition-colors cursor-pointer ${
                 period === "30d" ? "bg-background text-foreground shadow-xs" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -118,12 +118,12 @@ export default function ReportsPage() {
             </button>
           </div>
 
-          <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-1.5 text-xs">
-            <RefreshCw className="h-3.5 w-3.5" />
+          <Button variant="outline" onClick={handleRefresh}>
+            <RefreshCw />
             Refresh
           </Button>
 
-          <Button variant="outline" size="sm" onClick={handleExportCsv} className="gap-2 text-xs">
+          <Button variant="outline" onClick={handleExportCsv} className="gap-2">
             <Download className="h-4 w-4" />
             Export Safe CSV
           </Button>
@@ -131,26 +131,26 @@ export default function ReportsPage() {
       </PageHeader>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
-              <BarChart2 className="h-4 w-4 text-emerald-500" />
+              <BarChart2 className="h-4 w-4 text-success" />
               SLA Availability Compliance ({period.toUpperCase()})
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription>
               Weighted uptime percentage calculated from recent health checks.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-baseline justify-between">
               <span className="text-sm font-medium text-muted-foreground">Overall Uptime</span>
-              <span className="font-mono text-3xl font-bold text-emerald-500">
+              <span className="font-mono text-3xl font-bold text-success">
                 {data.overallUptime}%
               </span>
             </div>
             <div className="h-3 w-full rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-500"
+                className="h-full bg-success rounded-full transition-all duration-500"
                 style={{ width: `${Math.min(data.overallUptime, 100)}%` }}
               />
             </div>
@@ -160,13 +160,13 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <Calendar className="h-4 w-4 text-primary" />
               Latency Performance
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription>
               Aggregate response times across monitored services.
             </CardDescription>
           </CardHeader>
@@ -181,16 +181,16 @@ export default function ReportsPage() {
             </div>
             <div className="flex justify-between py-1 border-b border-border/50">
               <span className="text-muted-foreground">CSV Injection Defense:</span>
-              <span className="font-semibold text-emerald-500">Enabled (CWE-1236)</span>
+              <span className="font-semibold text-success">Enabled (CWE-1236)</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <Card className="border border-border">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-base font-semibold">Service Performance Breakdown</CardTitle>
-          <CardDescription className="text-xs">
+          <CardTitle className="text-lg">Service Performance Breakdown</CardTitle>
+          <CardDescription>
             Individual endpoint availability and average latency metrics.
           </CardDescription>
         </CardHeader>
@@ -215,9 +215,9 @@ export default function ReportsPage() {
                 {data.endpoints.map((ep) => (
                   <TableRow key={ep.id}>
                     <TableCell className="font-medium">
-                      <Link href={`/endpoints/${ep.id}`} className="hover:underline flex flex-col">
-                        <span className="font-semibold text-foreground text-sm">{ep.name}</span>
-                        <span className="font-mono text-xs text-muted-foreground truncate max-w-xs">
+                      <Link href={`/endpoints/${ep.id}`} className="group flex flex-col gap-0.5">
+                          <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{ep.name}</span>
+                        <span className="font-mono text-[0.8125rem] text-muted-foreground truncate max-w-xs">
                           {ep.url}
                         </span>
                       </Link>
@@ -225,11 +225,11 @@ export default function ReportsPage() {
                     <TableCell>
                       <StatusBadge status={ep.status} />
                     </TableCell>
-                    <TableCell className="font-mono text-xs font-semibold text-emerald-500">
+                    <TableCell className="tabular-nums text-sm font-semibold text-success">
                       {ep.uptimePercentage}%
                     </TableCell>
-                    <TableCell className="font-mono text-xs">{ep.avgResponseTime} ms</TableCell>
-                    <TableCell className="font-mono text-xs text-muted-foreground">
+                    <TableCell className="tabular-nums text-sm font-medium">{ep.avgResponseTime} ms</TableCell>
+                    <TableCell className="tabular-nums text-sm text-muted-foreground">
                       {ep.successfulChecks} / {ep.totalChecks} ({ep.failedChecks} failed)
                     </TableCell>
                     <TableCell className="text-right">

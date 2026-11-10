@@ -98,7 +98,7 @@ export default function RegisterPage() {
               "Create Free Account"
             )}
           </Button>
-          <div className="text-center text-xs text-muted-foreground">
+          <div className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link href="/login" className="font-semibold text-primary hover:underline">
               Sign In

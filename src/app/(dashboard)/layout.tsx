@@ -14,11 +14,11 @@ export default function DashboardLayout({
         <AppSidebar />
       </React.Suspense>
       <SidebarInset className="flex flex-col min-h-screen bg-background">
-        <React.Suspense fallback={<div className="h-14 border-b border-border" />}>
+        <React.Suspense fallback={<div className="h-16 border-b border-border" />}>
           <AppHeader />
         </React.Suspense>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
-          <React.Suspense fallback={<div className="p-8 text-center text-xs text-muted-foreground">Loading view...</div>}>
+        <main className="flex-1 w-full max-w-[1200px] mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-10 space-y-8">
+          <React.Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Loading view...</div>}>
             {children}
           </React.Suspense>
         </main>

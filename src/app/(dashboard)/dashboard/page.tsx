@@ -103,12 +103,12 @@ export default function DashboardOverviewPage() {
         description="Real-time uptime metrics, health status, and latency across your workspaces."
       >
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-1.5 text-xs">
-            <RefreshCw className="h-3.5 w-3.5" />
+          <Button variant="outline" onClick={handleRefresh}>
+            <RefreshCw />
             Refresh
           </Button>
-          <Button render={<Link href="/endpoints/new" />} className="gap-2">
-            <Plus className="h-4 w-4" />
+          <Button render={<Link href="/endpoints/new" />}>
+            <Plus />
             Add Endpoint
           </Button>
         </div>
@@ -116,31 +116,28 @@ export default function DashboardOverviewPage() {
 
       {/* Active Incident Callout Banner */}
       {activeIncident && (
-        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div role="alert" className="rounded-xl border border-destructive/25 bg-destructive/5 p-4 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-rose-500/20 text-rose-500 shrink-0">
-              <AlertTriangle className="h-5 w-5 animate-pulse" />
+            <div className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0">
+              <AlertTriangle className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-sm font-semibold text-rose-600 dark:text-rose-400">
+                <span className="text-[0.9375rem] font-semibold text-foreground">
                   Active Downtime: {activeIncident.endpointName}
                 </span>
-                <Badge variant="destructive" className="text-[10px] py-0 px-1.5 uppercase font-mono">
-                  DOWN
-                </Badge>
+                <StatusBadge status="DOWN" />
               </div>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <p className="text-sm text-muted-foreground mt-1">
                 {activeIncident.failureReason || "Failing assertions"} • Started{" "}
                 {new Date(activeIncident.startedAt).toLocaleString()}
               </p>
             </div>
           </div>
           <Button
-            variant="outline"
-            size="sm"
+            variant="destructive"
             render={<Link href={`/endpoints/${activeIncident.endpointId}`} />}
-            className="border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-xs shrink-0"
+            className="shrink-0"
           >
             Investigate Incident
           </Button>
@@ -153,65 +150,65 @@ export default function DashboardOverviewPage() {
           title="Monitored Endpoints"
           value={summary.totalEndpoints}
           description="Total active monitored services"
-          icon={<Radio className="h-4 w-4 text-primary" />}
+          icon={<Radio className="h-[18px] w-[18px] text-primary" />}
         />
         <StatCard
           title="Healthy (UP)"
           value={summary.healthyCount}
           description="Meeting SLA availability"
-          icon={<CheckCircle className="h-4 w-4 text-emerald-500" />}
+          icon={<CheckCircle className="h-[18px] w-[18px] text-success" />}
           trend={{ value: `${summary.uptime24h}% 24h SLA`, isPositive: true }}
         />
         <StatCard
           title="Active Outages"
           value={summary.outageCount}
           description="Endpoints failing assertions"
-          icon={<AlertTriangle className="h-4 w-4 text-rose-500" />}
+          icon={<AlertTriangle className="h-[18px] w-[18px] text-destructive" />}
           trend={summary.outageCount > 0 ? { value: "Action Required", isPositive: false } : undefined}
         />
         <StatCard
           title="Average Latency"
           value={`${summary.avgResponseTimeMs} ms`}
           description="Weighted 24h response time"
-          icon={<Clock className="h-4 w-4 text-amber-500" />}
+          icon={<Clock className="h-[18px] w-[18px] text-warning" />}
         />
       </div>
 
       {/* Latency Chart Card */}
-      <Card className="border border-border">
-        <CardHeader className="flex flex-row items-center justify-between py-4">
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Activity className="h-4 w-4 text-primary" />
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Activity className="h-[18px] w-[18px] text-primary" />
               Aggregate Latency Trend (Last 24 Hours)
             </CardTitle>
-            <CardDescription className="text-xs">
+            <CardDescription className="mt-1">
               Measured response times across all active endpoints in milliseconds.
             </CardDescription>
           </div>
-          <Badge variant="outline" className="font-mono text-xs">
-            Avg: {summary.avgResponseTimeMs}ms
+          <Badge variant="secondary" className="tabular-nums shrink-0">
+            Avg {summary.avgResponseTimeMs} ms
           </Badge>
         </CardHeader>
-        <CardContent className="pt-2 pb-6 px-4">
+        <CardContent className="pt-1">
           <LatencyChart data={chartData} height={220} />
         </CardContent>
       </Card>
 
       {/* Active Endpoints Table */}
-      <Card className="border border-border">
-        <CardHeader className="flex flex-row items-center justify-between py-4">
+      <Card>
+        <CardHeader className="flex flex-row items-start justify-between gap-4">
           <div>
-            <CardTitle className="text-base font-semibold">Registered Endpoints</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="text-lg">Registered Endpoints</CardTitle>
+            <CardDescription className="mt-1">
               Overview of all target HTTP/HTTPS endpoints and current health state.
             </CardDescription>
           </div>
-          <Button variant="ghost" size="sm" render={<Link href="/endpoints" />} className="gap-1 text-xs">
-            Manage All <ArrowUpRight className="h-3.5 w-3.5" />
+          <Button variant="outline" size="sm" render={<Link href="/endpoints" />} className="shrink-0">
+            Manage all <ArrowUpRight />
           </Button>
         </CardHeader>
-        <CardContent className="p-0">
+        <CardContent className="px-0 -mb-5 border-t border-border">
           {endpoints.length === 0 ? (
             <div className="py-8">
               <EmptyState
@@ -241,9 +238,9 @@ export default function DashboardOverviewPage() {
                   return (
                     <TableRow key={ep.id}>
                       <TableCell className="font-medium">
-                        <Link href={`/endpoints/${ep.id}`} className="hover:underline flex flex-col">
-                          <span className="font-semibold text-foreground text-sm">{ep.name}</span>
-                          <span className="font-mono text-xs text-muted-foreground truncate max-w-xs">
+                        <Link href={`/endpoints/${ep.id}`} className="group flex flex-col gap-0.5">
+                          <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{ep.name}</span>
+                          <span className="font-mono text-[0.8125rem] text-muted-foreground truncate max-w-xs">
                             {ep.url}
                           </span>
                         </Link>
@@ -251,19 +248,19 @@ export default function DashboardOverviewPage() {
                       <TableCell>
                         <StatusBadge status={ep.status} />
                       </TableCell>
-                      <TableCell className="hidden md:table-cell font-mono text-xs font-semibold">
+                      <TableCell className="hidden md:table-cell font-mono text-[0.8125rem] font-semibold">
                         {ep.method}
                       </TableCell>
-                      <TableCell className="font-mono text-xs">
+                      <TableCell className="tabular-nums text-muted-foreground">
                         {ep.intervalSeconds < 60 ? `${ep.intervalSeconds}s` : `${Math.round(ep.intervalSeconds / 60)}m`}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell font-mono text-xs font-medium text-emerald-500">
+                      <TableCell className="hidden sm:table-cell tabular-nums font-semibold text-foreground">
                         {latestCheck?.responseTimeMs !== undefined && latestCheck.responseTimeMs !== null
                           ? `${Math.round(latestCheck.responseTimeMs)} ms`
                           : "Pending"}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" render={<Link href={`/endpoints/${ep.id}`} />}>
+                        <Button variant="ghost" size="sm" render={<Link href={`/endpoints/${ep.id}`} />} className="text-primary hover:text-primary">
                           Details
                         </Button>
                       </TableCell>

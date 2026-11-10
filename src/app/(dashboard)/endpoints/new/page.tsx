@@ -130,10 +130,10 @@ export default function NewEndpointPage() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Section 1: Basic Information */}
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">1. Basic Information</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="text-lg">1. Basic Information</CardTitle>
+            <CardDescription>
               Give your monitored endpoint a recognizable name and public URL target.
             </CardDescription>
           </CardHeader>
@@ -146,7 +146,7 @@ export default function NewEndpointPage() {
                 {...register("name")}
               />
               {errors.name && (
-                <p className="text-xs text-rose-500 font-medium">{errors.name.message}</p>
+                <p className="text-xs text-destructive font-medium">{errors.name.message}</p>
               )}
             </div>
 
@@ -156,7 +156,7 @@ export default function NewEndpointPage() {
                 <select
                   id="method"
                   {...register("method")}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="flex h-10 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-semibold shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {httpMethods.map((m) => (
                     <option key={m} value={m} className="bg-popover text-popover-foreground">
@@ -165,7 +165,7 @@ export default function NewEndpointPage() {
                   ))}
                 </select>
                 {errors.method && (
-                  <p className="text-xs text-rose-500 font-medium">{errors.method.message}</p>
+                  <p className="text-xs text-destructive font-medium">{errors.method.message}</p>
                 )}
               </div>
 
@@ -177,7 +177,7 @@ export default function NewEndpointPage() {
                   {...register("url")}
                 />
                 {errors.url && (
-                  <p className="text-xs text-rose-500 font-medium">{errors.url.message}</p>
+                  <p className="text-xs text-destructive font-medium">{errors.url.message}</p>
                 )}
               </div>
             </div>
@@ -185,10 +185,10 @@ export default function NewEndpointPage() {
         </Card>
 
         {/* Section 2: Monitoring Schedule & Timeouts */}
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">2. Schedule & Limits</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="text-lg">2. Schedule & Limits</CardTitle>
+            <CardDescription>
               Configure how often APIWatch probes your service and maximum acceptable latency.
             </CardDescription>
           </CardHeader>
@@ -202,9 +202,9 @@ export default function NewEndpointPage() {
                 max={86400}
                 {...register("intervalSeconds", { valueAsNumber: true })}
               />
-              <p className="text-[11px] text-muted-foreground">Default: 300s (5 minutes). Minimum: 60s.</p>
+              <p className="text-sm text-muted-foreground">Default: 300s (5 minutes). Minimum: 60s.</p>
               {errors.intervalSeconds && (
-                <p className="text-xs text-rose-500 font-medium">{errors.intervalSeconds.message}</p>
+                <p className="text-xs text-destructive font-medium">{errors.intervalSeconds.message}</p>
               )}
             </div>
 
@@ -218,9 +218,9 @@ export default function NewEndpointPage() {
                 step={500}
                 {...register("timeoutMs", { valueAsNumber: true })}
               />
-              <p className="text-[11px] text-muted-foreground">Maximum allowable latency before timing out (1s - 30s).</p>
+              <p className="text-sm text-muted-foreground">Maximum allowable latency before timing out (1s - 30s).</p>
               {errors.timeoutMs && (
-                <p className="text-xs text-rose-500 font-medium">{errors.timeoutMs.message}</p>
+                <p className="text-xs text-destructive font-medium">{errors.timeoutMs.message}</p>
               )}
             </div>
 
@@ -231,7 +231,7 @@ export default function NewEndpointPage() {
                 {...register("followRedirects")}
                 className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
               />
-              <Label htmlFor="followRedirects" className="text-xs cursor-pointer">
+              <Label htmlFor="followRedirects" className="text-sm cursor-pointer">
                 Follow HTTP Redirects (up to 3 hops with safe SSRF re-verification)
               </Label>
             </div>
@@ -239,10 +239,10 @@ export default function NewEndpointPage() {
         </Card>
 
         {/* Section 3: Headers & Payload */}
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">3. Headers & Request Payload</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="text-lg">3. Headers & Request Payload</CardTitle>
+            <CardDescription>
               Supply custom headers (e.g., Bearer tokens, API keys) and request payload for POST/PUT.
             </CardDescription>
           </CardHeader>
@@ -271,19 +271,17 @@ export default function NewEndpointPage() {
                       <Input
                         placeholder="Header Name (e.g. Authorization)"
                         {...register(`requestHeaders.${index}.key` as const)}
-                        className="text-xs"
                       />
                       <Input
                         placeholder="Header Value (e.g. Bearer token_xyz)"
                         {...register(`requestHeaders.${index}.value` as const)}
-                        className="text-xs"
                       />
                       <Button
                         type="button"
                         variant="ghost"
-                        size="icon-sm"
+                        size="icon"
                         onClick={() => remove(index)}
-                        className="text-rose-500 hover:text-rose-600 shrink-0"
+                        className="text-destructive hover:text-destructive shrink-0"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -301,7 +299,7 @@ export default function NewEndpointPage() {
                   rows={4}
                   placeholder='{"ping": "pong"}'
                   {...register("requestBody")}
-                  className="w-full rounded-md border border-input bg-transparent px-3 py-2 text-xs font-mono shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-mono shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 />
               </div>
             )}
@@ -309,10 +307,10 @@ export default function NewEndpointPage() {
         </Card>
 
         {/* Section 4: Health Assertions */}
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">4. Assertions & Validation</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="text-lg">4. Assertions & Validation</CardTitle>
+            <CardDescription>
               Define the criteria required for the probe to consider this endpoint healthy (UP).
             </CardDescription>
           </CardHeader>
@@ -324,9 +322,9 @@ export default function NewEndpointPage() {
                 placeholder="200, 201, 204"
                 {...register("expectedStatusCodes")}
               />
-              <p className="text-[11px] text-muted-foreground">Comma-separated status codes considered healthy.</p>
+              <p className="text-sm text-muted-foreground">Comma-separated status codes considered healthy.</p>
               {errors.expectedStatusCodes && (
-                <p className="text-xs text-rose-500 font-medium">{errors.expectedStatusCodes.message}</p>
+                <p className="text-xs text-destructive font-medium">{errors.expectedStatusCodes.message}</p>
               )}
             </div>
 
@@ -355,16 +353,16 @@ export default function NewEndpointPage() {
           <div
             className={`p-4 rounded-xl border flex items-start gap-3 ${
               testResult.success
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
-                : "bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400"
+                ? "bg-success/10 border-success/30 text-success "
+                : "bg-destructive/10 border-destructive/30 text-destructive "
             }`}
           >
             {testResult.success ? (
-              <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+              <CheckCircle className="h-5 w-5 text-success shrink-0 mt-0.5" />
             ) : (
-              <AlertCircle className="h-5 w-5 text-rose-500 shrink-0 mt-0.5" />
+              <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
             )}
-            <div className="space-y-1 text-xs">
+            <div className="space-y-1 text-sm">
               <p className="font-semibold">
                 {testResult.success ? "Test Health Check Passed" : "Test Health Check Failed"}
               </p>
@@ -384,7 +382,7 @@ export default function NewEndpointPage() {
             {testing ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              <Play className="h-4 w-4 text-emerald-500" />
+              <Play className="h-4 w-4 text-success" />
             )}
             {testing ? "Probing Target..." : "Test Endpoint Now"}
           </Button>

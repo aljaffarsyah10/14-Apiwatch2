@@ -21,11 +21,11 @@ export function AppHeader() {
   const segments = pathname.split("/").filter(Boolean);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-border bg-background/95 px-4 backdrop-blur-md">
+    <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border bg-background/85 px-4 backdrop-blur-md sm:px-6">
       <div className="flex items-center gap-2 sm:gap-3">
         <SidebarTrigger className="-ml-1" />
         <Separator orientation="vertical" className="h-4" />
-        <Breadcrumb>
+        <Breadcrumb className="min-w-0 text-sm">
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink render={<Link href="/dashboard" />}>
@@ -58,7 +58,8 @@ export function AppHeader() {
       </div>
 
       <div className="flex items-center gap-3">
-        <Badge variant="outline" className="hidden sm:inline-flex border-emerald-500/30 text-emerald-500 text-[11px] font-mono">
+        <Badge variant="outline" className="hidden sm:inline-flex border-success/25 bg-success/10 text-success">
+          <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
           System Operational
         </Badge>
         <ThemeToggle />

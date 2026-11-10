@@ -26,7 +26,7 @@ export default function AuthLayout({
         <div className="w-full max-w-md">{children}</div>
       </main>
 
-      <footer className="py-6 text-center text-xs text-muted-foreground border-t border-border/40">
+      <footer className="py-6 text-center text-sm text-muted-foreground border-t border-border/40">
         © 2026 APIWatch. Secured with Auth.js & PostgreSQL.
       </footer>
     </div>

@@ -13,10 +13,10 @@ export function PublicFooter() {
             <Activity className="h-4 w-4" />
           </div>
           <span className="font-semibold text-foreground">APIWatch</span>
-          <span className="text-xs">© 2026 APIWatch. All rights reserved.</span>
+          <span className="text-sm">© 2026 APIWatch. All rights reserved.</span>
         </div>
 
-        <div className="flex items-center gap-6 text-xs">
+        <div className="flex items-center gap-6 text-sm">
           <Link href="/terms" className="hover:text-foreground transition-colors">
             Terms of Service
           </Link>

@@ -25,19 +25,19 @@ export function ErrorState({
   return (
     <div
       className={cn(
-        "rounded-xl border border-rose-500/20 bg-rose-500/5 p-6 text-center sm:p-8",
+        "rounded-xl border border-destructive/20 bg-destructive/5 p-6 text-center sm:p-8",
         className
       )}
     >
-      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-500/10 text-rose-500 mb-3">
+      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10 text-destructive mb-3">
         <AlertCircle className="h-6 w-6" />
       </div>
-      <h3 className="text-base font-semibold text-rose-600 dark:text-rose-400">
+      <h3 className="text-base font-semibold text-destructive">
         {title}
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{displayMsg}</p>
       {code && (
-        <p className="mt-2 font-mono text-xs text-rose-500/80">Code: {code}</p>
+        <p className="mt-2 font-mono text-xs text-destructive/80">Code: {code}</p>
       )}
       {onRetry && (
         <div className="mt-4">
@@ -45,7 +45,7 @@ export function ErrorState({
             variant="outline"
             size="sm"
             onClick={onRetry}
-            className="gap-2 border-rose-500/30 hover:bg-rose-500/10"
+            className="gap-2 border-destructive/30 hover:bg-destructive/10"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             Try again

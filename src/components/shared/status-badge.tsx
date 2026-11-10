@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle2, AlertTriangle, PauseCircle, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type EndpointStatusType = "UP" | "DOWN" | "PAUSED" | "PENDING";
@@ -11,60 +10,44 @@ interface StatusBadgeProps {
   showIcon?: boolean;
 }
 
+const STATUS_STYLES: Record<
+  EndpointStatusType,
+  { label: string; badge: string; dot: string }
+> = {
+  UP: {
+    label: "Operational",
+    badge: "bg-success/10 text-success border-success/20",
+    dot: "bg-success",
+  },
+  DOWN: {
+    label: "Down",
+    badge: "bg-destructive/10 text-destructive border-destructive/25",
+    dot: "bg-destructive animate-pulse",
+  },
+  PAUSED: {
+    label: "Paused",
+    badge: "bg-warning/10 text-warning border-warning/20",
+    dot: "bg-warning",
+  },
+  PENDING: {
+    label: "Pending",
+    badge: "bg-muted text-muted-foreground border-border",
+    dot: "bg-muted-foreground/60",
+  },
+};
+
 export function StatusBadge({ status, className, showIcon = true }: StatusBadgeProps) {
-  switch (status) {
-    case "UP":
-      return (
-        <Badge
-          variant="outline"
-          className={cn(
-            "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 font-medium inline-flex items-center gap-1.5",
-            className
-          )}
-        >
-          {showIcon && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />}
-          <span>UP</span>
-        </Badge>
-      );
-    case "DOWN":
-      return (
-        <Badge
-          variant="outline"
-          className={cn(
-            "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 font-medium inline-flex items-center gap-1.5",
-            className
-          )}
-        >
-          {showIcon && <AlertTriangle className="h-3.5 w-3.5 text-rose-500 animate-pulse" />}
-          <span>DOWN</span>
-        </Badge>
-      );
-    case "PAUSED":
-      return (
-        <Badge
-          variant="outline"
-          className={cn(
-            "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 font-medium inline-flex items-center gap-1.5",
-            className
-          )}
-        >
-          {showIcon && <PauseCircle className="h-3.5 w-3.5 text-amber-500" />}
-          <span>PAUSED</span>
-        </Badge>
-      );
-    case "PENDING":
-    default:
-      return (
-        <Badge
-          variant="outline"
-          className={cn(
-            "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20 font-medium inline-flex items-center gap-1.5",
-            className
-          )}
-        >
-          {showIcon && <Clock className="h-3.5 w-3.5 text-zinc-400" />}
-          <span>PENDING</span>
-        </Badge>
-      );
-  }
+  const style = STATUS_STYLES[status] ?? STATUS_STYLES.PENDING;
+
+  return (
+    <Badge
+      variant="outline"
+      className={cn("inline-flex items-center gap-1.5 font-semibold", style.badge, className)}
+    >
+      {showIcon && (
+        <span aria-hidden className={cn("h-1.5 w-1.5 rounded-full", style.dot)} />
+      )}
+      <span>{style.label}</span>
+    </Badge>
+  );
 }

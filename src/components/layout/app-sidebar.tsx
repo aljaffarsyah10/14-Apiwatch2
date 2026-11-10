@@ -94,17 +94,17 @@ export function AppSidebar() {
     .toUpperCase() || "AW";
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/80">
-      <SidebarHeader className="border-b border-border/50 py-3">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="h-16 justify-center border-b border-sidebar-border px-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" render={<Link href="/dashboard" />}>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm shadow-primary/30">
                 <Activity className="h-4 w-4" />
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-bold tracking-tight text-sm">APIWatch</span>
-                <span className="text-[10px] text-muted-foreground uppercase font-mono tracking-wider">
+                <span className="text-[0.9375rem] font-bold tracking-tight text-foreground">APIWatch</span>
+                <span className="text-xs font-medium text-muted-foreground">
                   Monitoring
                 </span>
               </div>
@@ -113,11 +113,11 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-1.5 py-3">
         <SidebarGroup>
-          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupLabel>Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1">
               {mainNavItems.map((item) => {
                 const isActive =
                   pathname === item.url ||
@@ -130,7 +130,7 @@ export function AppSidebar() {
                       isActive={isActive}
                       tooltip={item.title}
                     >
-                      <item.icon className="h-4 w-4" />
+                      <item.icon />
                       <span>{item.title}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -149,8 +149,8 @@ export function AppSidebar() {
                   render={<Link href="/endpoints/new" />}
                   tooltip="Add Endpoint"
                 >
-                  <PlusCircle className="h-4 w-4 text-primary" />
-                  <span className="text-primary font-medium">New Endpoint</span>
+                  <PlusCircle className="text-primary" />
+                  <span className="font-semibold text-primary">New Endpoint</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
@@ -158,8 +158,8 @@ export function AppSidebar() {
                   render={<Link href="/" target="_blank" />}
                   tooltip="Public Status"
                 >
-                  <ExternalLink className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Public Home</span>
+                  <ExternalLink />
+                  <span>Public Home</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -167,25 +167,26 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border/50 p-2">
+      <SidebarFooter className="border-t border-sidebar-border p-3">
         <SidebarMenu>
           <SidebarMenuItem>
             <div className="flex items-center justify-between p-1 w-full">
               <div className="flex items-center gap-2 overflow-hidden">
-                <Avatar className="h-8 w-8 rounded-lg shrink-0">
-                  <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-semibold text-xs">
+                <Avatar className="h-9 w-9 rounded-lg shrink-0">
+                  <AvatarFallback className="rounded-lg bg-primary/10 text-primary font-semibold text-sm">
                     {initials}
                   </AvatarFallback>
                 </Avatar>
-                <div className="grid flex-1 text-left text-xs leading-tight truncate">
-                  <span className="truncate font-semibold">{displayName}</span>
-                  <span className="truncate text-[10px] text-muted-foreground">{displayEmail}</span>
+                <div className="grid flex-1 gap-0.5 text-left leading-tight truncate group-data-[collapsible=icon]:hidden">
+                  <span className="truncate text-sm font-semibold text-foreground">{displayName}</span>
+                  <span className="truncate text-xs text-muted-foreground">{displayEmail}</span>
                 </div>
               </div>
               <button
                 onClick={handleLogout}
                 title="Sign Out"
-                className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground shrink-0 cursor-pointer"
+                aria-label="Sign out"
+                className="p-2 rounded-md hover:bg-sidebar-accent text-muted-foreground hover:text-foreground shrink-0 cursor-pointer transition-colors group-data-[collapsible=icon]:hidden"
               >
                 <LogOut className="h-4 w-4" />
               </button>

@@ -117,16 +117,16 @@ function EditEndpointContent() {
       />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">Target Configuration</CardTitle>
+            <CardTitle className="text-lg">Target Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Endpoint Name</Label>
               <Input id="name" {...register("name")} />
               {errors.name && (
-                <p className="text-xs text-rose-500 font-medium">{errors.name.message}</p>
+                <p className="text-xs text-destructive font-medium">{errors.name.message}</p>
               )}
             </div>
 
@@ -136,7 +136,7 @@ function EditEndpointContent() {
                 <select
                   id="method"
                   {...register("method")}
-                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  className="flex h-10 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm font-semibold shadow-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {httpMethods.map((m) => (
                     <option key={m} value={m} className="bg-popover text-popover-foreground">
@@ -150,7 +150,7 @@ function EditEndpointContent() {
                 <Label htmlFor="url">Target URL</Label>
                 <Input id="url" {...register("url")} />
                 {errors.url && (
-                  <p className="text-xs text-rose-500 font-medium">{errors.url.message}</p>
+                  <p className="text-xs text-destructive font-medium">{errors.url.message}</p>
                 )}
               </div>
             </div>
@@ -166,7 +166,7 @@ function EditEndpointContent() {
                   {...register("intervalSeconds", { valueAsNumber: true })}
                 />
                 {errors.intervalSeconds && (
-                  <p className="text-xs text-rose-500 font-medium">{errors.intervalSeconds.message}</p>
+                  <p className="text-xs text-destructive font-medium">{errors.intervalSeconds.message}</p>
                 )}
               </div>
 
@@ -181,7 +181,7 @@ function EditEndpointContent() {
                   {...register("timeoutMs", { valueAsNumber: true })}
                 />
                 {errors.timeoutMs && (
-                  <p className="text-xs text-rose-500 font-medium">{errors.timeoutMs.message}</p>
+                  <p className="text-xs text-destructive font-medium">{errors.timeoutMs.message}</p>
                 )}
               </div>
             </div>
@@ -190,7 +190,7 @@ function EditEndpointContent() {
               <Label htmlFor="expectedStatusCodes">Expected Status Codes</Label>
               <Input id="expectedStatusCodes" {...register("expectedStatusCodes")} />
               {errors.expectedStatusCodes && (
-                <p className="text-xs text-rose-500 font-medium">{errors.expectedStatusCodes.message}</p>
+                <p className="text-xs text-destructive font-medium">{errors.expectedStatusCodes.message}</p>
               )}
             </div>
 
@@ -211,7 +211,7 @@ function EditEndpointContent() {
                 {...register("followRedirects")}
                 className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
               />
-              <Label htmlFor="followRedirects" className="text-xs cursor-pointer">
+              <Label htmlFor="followRedirects" className="text-sm cursor-pointer">
                 Follow HTTP Redirects (up to 3 hops)
               </Label>
             </div>

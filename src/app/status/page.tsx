@@ -77,14 +77,14 @@ export default function PublicStatusPage() {
         <div
           className={`rounded-2xl p-6 border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
             hasOutage
-              ? "bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-400"
-              : "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+              ? "bg-destructive/10 border-destructive/30 text-destructive "
+              : "bg-success/10 border-success/30 text-success "
           }`}
         >
           <div className="flex items-center gap-4">
             <div
               className={`p-3 rounded-xl shrink-0 ${
-                hasOutage ? "bg-rose-500/20 text-rose-500" : "bg-emerald-500/20 text-emerald-500"
+                hasOutage ? "bg-destructive/20 text-destructive" : "bg-success/20 text-success"
               }`}
             >
               {hasOutage ? (
@@ -94,10 +94,10 @@ export default function PublicStatusPage() {
               )}
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
                 {hasOutage ? "Active Service Disruption" : "All Systems Fully Operational"}
               </h1>
-              <p className="text-xs text-muted-foreground mt-1">
+              <p className="text-sm leading-relaxed text-muted-foreground mt-1.5 max-w-2xl">
                 {hasOutage
                   ? "Our automated background workers detected assertions failure on one or more monitored services."
                   : "Continuous health checks, multi-layer SSRF validation, and background probe workers are operating normally."}
@@ -106,7 +106,7 @@ export default function PublicStatusPage() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            <Badge variant="outline" className="font-mono text-xs px-2.5 py-1">
+            <Badge variant="outline" className="font-mono text-sm px-3 py-1 font-semibold">
               SLA: {data ? `${data.overallUptime}%` : "100%"}
             </Badge>
           </div>
@@ -114,25 +114,25 @@ export default function PublicStatusPage() {
 
         {/* Uptime Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Card className="border border-border">
+          <Card>
             <CardHeader className="py-4">
-              <CardDescription className="text-xs">Overall Availability</CardDescription>
-              <CardTitle className="text-2xl font-mono text-emerald-500">
+              <CardDescription>Overall Availability</CardDescription>
+              <CardTitle className="text-2xl font-mono text-success">
                 {data ? `${data.overallUptime}%` : "100%"}
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card className="border border-border">
+          <Card>
             <CardHeader className="py-4">
-              <CardDescription className="text-xs">Average Response Time</CardDescription>
+              <CardDescription>Average Response Time</CardDescription>
               <CardTitle className="text-2xl font-mono">
                 {data ? `${data.overallAvgLatency} ms` : "—"}
               </CardTitle>
             </CardHeader>
           </Card>
-          <Card className="border border-border">
+          <Card>
             <CardHeader className="py-4">
-              <CardDescription className="text-xs">Active Services</CardDescription>
+              <CardDescription>Active Services</CardDescription>
               <CardTitle className="text-2xl font-mono flex items-center gap-2">
                 {data ? data.totalEndpoints : 0}
                 <span className="text-xs font-normal text-muted-foreground font-sans flex items-center gap-1">
@@ -144,10 +144,10 @@ export default function PublicStatusPage() {
         </div>
 
         {/* Monitored Services List */}
-        <Card className="border border-border">
+        <Card>
           <CardHeader>
-            <CardTitle className="text-base font-semibold">Service Health Components</CardTitle>
-            <CardDescription className="text-xs">
+            <CardTitle className="text-lg">Service Health Components</CardTitle>
+            <CardDescription>
               Live status and uptime compliance across registered API endpoints.
             </CardDescription>
           </CardHeader>
@@ -166,13 +166,13 @@ export default function PublicStatusPage() {
                 >
                   <div className="space-y-0.5">
                     <span className="font-semibold text-sm block">{ep.name}</span>
-                    <span className="font-mono text-[11px] text-muted-foreground">
+                    <span className="font-mono text-xs text-muted-foreground">
                       {ep.method} • {ep.avgResponseTime}ms avg latency
                     </span>
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <span className="font-mono text-xs font-semibold text-emerald-500 hidden sm:inline-block">
+                    <span className="font-mono text-xs font-semibold text-success hidden sm:inline-block">
                       {ep.uptimePercentage}%
                     </span>
                     <StatusBadge status={ep.status} />
@@ -185,7 +185,7 @@ export default function PublicStatusPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
+      <footer className="border-t border-border py-8 text-center text-sm text-muted-foreground">
         Powered by APIWatch — Automated API monitoring and reliability engineering.
       </footer>
     </div>

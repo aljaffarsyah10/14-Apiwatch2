@@ -26,8 +26,8 @@ export default function LandingPage() {
             <div className="flex justify-center">
               <Badge variant="outline" className="px-3 py-1 border-primary/30 text-primary text-xs gap-1.5">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-success"></span>
                 </span>
                 Automated 24/7 API Health Monitoring
               </Badge>
@@ -60,57 +60,57 @@ export default function LandingPage() {
             <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
               Engineered for developer reliability
             </h2>
-            <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            <p className="text-base text-muted-foreground max-w-xl mx-auto">
               Built on a dedicated Node.js worker and BullMQ scheduler to guarantee continuous execution.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="border border-border">
+            <Card>
               <CardHeader>
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-2">
                   <Radio className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg">Periodic Health Checks</CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-sm leading-relaxed">
                   Automated checks from 1 to 60-minute intervals with millisecond latency resolution.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-xs text-muted-foreground space-y-2">
+              <CardContent className="text-sm leading-relaxed text-muted-foreground space-y-2.5">
                 <p>• Status code verification (2xx, 3xx, 4xx, 5xx)</p>
                 <p>• Response body pattern and string matching</p>
                 <p>• Custom request headers and JSON payloads</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-border">
+            <Card>
               <CardHeader>
-                <div className="h-10 w-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500 mb-2">
+                <div className="h-10 w-10 rounded-lg bg-success/10 flex items-center justify-center text-success mb-2">
                   <Lock className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg">Strict SSRF & IP Pinning</CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-sm leading-relaxed">
                   Advanced multi-layer security blocking private IP ranges and preventing DNS rebinding.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-xs text-muted-foreground space-y-2">
+              <CardContent className="text-sm leading-relaxed text-muted-foreground space-y-2.5">
                 <p>• RFC1918 & Cloud metadata blocking</p>
                 <p>• Pre-request DNS resolution & subnet validation</p>
                 <p>• AES-256-GCM encrypted authorization tokens</p>
               </CardContent>
             </Card>
 
-            <Card className="border border-border">
+            <Card>
               <CardHeader>
-                <div className="h-10 w-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-500 mb-2">
+                <div className="h-10 w-10 rounded-lg bg-warning/10 flex items-center justify-center text-warning mb-2">
                   <BellRing className="h-5 w-5" />
                 </div>
                 <CardTitle className="text-lg">Incident Lifecycle & Alerts</CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-sm leading-relaxed">
                   Automated downtime tracking with recovery verification and email notifications.
                 </CardDescription>
               </CardHeader>
-              <CardContent className="text-xs text-muted-foreground space-y-2">
+              <CardContent className="text-sm leading-relaxed text-muted-foreground space-y-2.5">
                 <p>• Automatic OPEN and RESOLVED transitions</p>
                 <p>• Check-based SLA uptime calculations</p>
                 <p>• Latency percentiles (p50, p90, p99)</p>

@@ -136,8 +136,8 @@ export default function EndpointsPage() {
         description="Manage your HTTP/HTTPS endpoints, intervals, and health assertions."
       >
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh} className="gap-1.5 text-xs">
-            <RefreshCw className="h-3.5 w-3.5" />
+          <Button variant="outline" onClick={handleRefresh}>
+          <RefreshCw />
             Refresh
           </Button>
           <Button render={<Link href="/endpoints/new" />} className="gap-2">
@@ -157,18 +157,18 @@ export default function EndpointsPage() {
           </TabsList>
         </Tabs>
 
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <div className="relative w-full sm:w-80">
+          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
             placeholder="Search endpoint name or URL..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8 text-sm"
+            className="pl-9.5 text-sm"
           />
         </div>
       </div>
 
-      <Card className="border border-border">
+      <Card>
         <CardContent className="p-0">
           {filteredEndpoints.length === 0 ? (
             <div className="py-12">
@@ -214,9 +214,9 @@ export default function EndpointsPage() {
                   return (
                     <TableRow key={ep.id}>
                       <TableCell>
-                        <Link href={`/endpoints/${ep.id}`} className="hover:underline flex flex-col">
-                          <span className="font-semibold text-foreground text-sm">{ep.name}</span>
-                          <span className="font-mono text-xs text-muted-foreground truncate max-w-xs">
+                        <Link href={`/endpoints/${ep.id}`} className="group flex flex-col gap-0.5">
+                          <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{ep.name}</span>
+                          <span className="font-mono text-[0.8125rem] text-muted-foreground truncate max-w-xs">
                             {ep.url}
                           </span>
                         </Link>
@@ -224,13 +224,13 @@ export default function EndpointsPage() {
                       <TableCell>
                         <StatusBadge status={ep.status} />
                       </TableCell>
-                      <TableCell className="hidden md:table-cell font-mono text-xs font-semibold">
+                      <TableCell className="hidden md:table-cell font-mono text-[0.8125rem] font-semibold">
                         {ep.method}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell font-mono text-xs">
+                      <TableCell className="hidden sm:table-cell tabular-nums text-muted-foreground">
                         {ep.intervalSeconds < 60 ? `${ep.intervalSeconds}s` : `${Math.round(ep.intervalSeconds / 60)}m`}
                       </TableCell>
-                      <TableCell className="font-mono text-xs">
+                      <TableCell className="tabular-nums">
                         {latestCheck?.responseTimeMs !== undefined && latestCheck.responseTimeMs !== null
                           ? `${Math.round(latestCheck.responseTimeMs)} ms`
                           : "Pending"}
@@ -244,9 +244,9 @@ export default function EndpointsPage() {
                             onClick={() => handleTogglePause(ep)}
                           >
                             {ep.status === "PAUSED" ? (
-                              <Play className="h-4 w-4 text-emerald-500" />
+                              <Play className="h-4 w-4 text-success" />
                             ) : (
-                              <Pause className="h-4 w-4 text-amber-500" />
+                              <Pause className="h-4 w-4 text-warning" />
                             )}
                           </Button>
                           <Button
@@ -261,7 +261,7 @@ export default function EndpointsPage() {
                             variant="ghost"
                             size="icon-sm"
                             title="Delete Endpoint"
-                            className="text-rose-500 hover:text-rose-600 hover:bg-rose-500/10"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => setDeleteEndpointTarget(ep)}
                           >
                             <Trash2 className="h-4 w-4" />
