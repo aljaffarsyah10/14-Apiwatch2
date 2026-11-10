@@ -1,9 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import { executeMonitoredRequest } from "@/lib/monitoring/http-executor";
 import { evaluateAssertions } from "@/lib/monitoring/assertions";
+import { getSessionOrDefault } from "@/lib/auth/session";
+import { checkRateLimit, getClientIp } from "@/lib/security/rate-limiter";
 
 export async function POST(request: NextRequest) {
   try {
+    await getSessionOrDefault();
+
+    // Rate Limiting: 30 probe tests per minute per IP to prevent proxy abuse
+    const clientIp = getClientIp(request.headers);
+    const rateCheck = checkRateLimit(`test_endpoint:${clientIp}`, 30, 60);
+
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Rate limit exceeded. Too many test probes. Please wait ${rateCheck.resetSeconds}s.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateCheck.resetSeconds),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const {
       url,
@@ -16,9 +39,16 @@ export async function POST(request: NextRequest) {
       timeoutMs = 10000,
     } = body;
 
-    if (!url || (!url.startsWith("http://") && !url.startsWith("https://"))) {
+    if (!url || typeof url !== "string" || (!url.startsWith("http://") && !url.startsWith("https://"))) {
       return NextResponse.json(
         { success: false, error: "Please provide a valid HTTP or HTTPS URL" },
+        { status: 400 }
+      );
+    }
+
+    if (url.length > 2048) {
+      return NextResponse.json(
+        { success: false, error: "URL exceeds maximum length of 2,048 characters" },
         { status: 400 }
       );
     }

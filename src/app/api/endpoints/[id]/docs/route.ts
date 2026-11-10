@@ -43,6 +43,27 @@ export async function PUT(request: NextRequest, context: RouteContext) {
     const body = await request.json();
     const { description, requestExample, responseExample } = body;
 
+    if (description && (typeof description !== "string" || description.length > 10000)) {
+      return NextResponse.json(
+        { success: false, error: "Description exceeds maximum length of 10,000 characters" },
+        { status: 400 }
+      );
+    }
+
+    if (requestExample && (typeof requestExample !== "string" || requestExample.length > 20000)) {
+      return NextResponse.json(
+        { success: false, error: "Request example exceeds maximum length of 20,000 characters" },
+        { status: 400 }
+      );
+    }
+
+    if (responseExample && (typeof responseExample !== "string" || responseExample.length > 20000)) {
+      return NextResponse.json(
+        { success: false, error: "Response example exceeds maximum length of 20,000 characters" },
+        { status: 400 }
+      );
+    }
+
     const endpoint = await db.endpoint.findFirst({
       where: { id, workspaceId: session.workspaceId },
     });

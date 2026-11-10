@@ -1,10 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionOrDefault } from "@/lib/auth/session";
 import { validateSafeUrl, SSRFError } from "@/lib/monitoring/ssrf-guard";
+import { checkRateLimit, getClientIp } from "@/lib/security/rate-limiter";
 
 export async function POST(request: NextRequest) {
   try {
     await getSessionOrDefault();
+
+    // Rate Limiting: Max 15 webhook test triggers per minute per client IP
+    const clientIp = getClientIp(request.headers);
+    const rateCheck = checkRateLimit(`webhook_test:${clientIp}`, 15, 60);
+
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Webhook testing rate limit exceeded. Please wait ${rateCheck.resetSeconds}s.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateCheck.resetSeconds),
+          },
+        }
+      );
+    }
 
     const body = await request.json();
     const { webhookUrl, channelType = "DISCORD" } = body;
@@ -12,6 +32,13 @@ export async function POST(request: NextRequest) {
     if (!webhookUrl || typeof webhookUrl !== "string") {
       return NextResponse.json(
         { success: false, error: "Please provide a valid Webhook URL" },
+        { status: 400 }
+      );
+    }
+
+    if (webhookUrl.length > 2048) {
+      return NextResponse.json(
+        { success: false, error: "Webhook URL exceeds maximum length of 2,048 characters" },
         { status: 400 }
       );
     }

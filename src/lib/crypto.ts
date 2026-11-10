@@ -59,6 +59,14 @@ export function decryptCredential(cipherText: string): string {
   const iv = Buffer.from(ivHex, "hex");
   const authTag = Buffer.from(tagHex, "hex");
 
+  if (iv.length !== IV_LENGTH) {
+    throw new Error(`Invalid IV length. Expected ${IV_LENGTH} bytes, got ${iv.length}`);
+  }
+
+  if (authTag.length !== 16) {
+    throw new Error(`Invalid AuthTag length. Expected 16 bytes, got ${authTag.length}`);
+  }
+
   const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(authTag);
 

@@ -2,15 +2,42 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import db from "@/lib/db";
 import { setSessionCookie } from "@/lib/auth/session";
+import { checkRateLimit, getClientIp } from "@/lib/security/rate-limiter";
 
 export async function POST(request: NextRequest) {
   try {
+    // Brute-force defense: Max 10 attempts per minute per IP
+    const clientIp = getClientIp(request.headers);
+    const rateCheck = checkRateLimit(`login_brute_force:${clientIp}`, 10, 60);
+
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Too many login attempts. Please wait ${rateCheck.resetSeconds}s before trying again.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateCheck.resetSeconds),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const { email, password } = body;
 
-    if (!email || !password) {
+    if (!email || !password || typeof email !== "string" || typeof password !== "string") {
       return NextResponse.json(
-        { success: false, error: "Email and password are required" },
+        { success: false, error: "Valid email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    if (email.length > 255 || password.length > 255) {
+      return NextResponse.json(
+        { success: false, error: "Input exceeds allowable length" },
         { status: 400 }
       );
     }

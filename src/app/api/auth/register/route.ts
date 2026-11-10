@@ -2,22 +2,49 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import db from "@/lib/db";
 import { setSessionCookie } from "@/lib/auth/session";
+import { checkRateLimit, getClientIp } from "@/lib/security/rate-limiter";
 
 export async function POST(request: NextRequest) {
   try {
+    // Sybil defense: Max 5 registration requests per minute per IP
+    const clientIp = getClientIp(request.headers);
+    const rateCheck = checkRateLimit(`register_rate_limit:${clientIp}`, 5, 60);
+
+    if (!rateCheck.success) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Registration rate limit exceeded. Please wait ${rateCheck.resetSeconds}s.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateCheck.resetSeconds),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const { email, password, name } = body;
 
-    if (!email || !email.includes("@")) {
+    if (!email || typeof email !== "string" || !email.includes("@") || email.length > 255) {
       return NextResponse.json(
-        { success: false, error: "Please provide a valid email address" },
+        { success: false, error: "Please provide a valid email address (max 255 characters)" },
         { status: 400 }
       );
     }
 
-    if (!password || password.length < 8) {
+    if (!password || typeof password !== "string" || password.length < 8 || password.length > 255) {
       return NextResponse.json(
-        { success: false, error: "Password must be at least 8 characters long" },
+        { success: false, error: "Password must be between 8 and 255 characters long" },
+        { status: 400 }
+      );
+    }
+
+    if (name && (typeof name !== "string" || name.length > 100)) {
+      return NextResponse.json(
+        { success: false, error: "Name cannot exceed 100 characters" },
         { status: 400 }
       );
     }
@@ -34,7 +61,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+    // 12 rounds bcrypt salt for hardened password hashing
+    const passwordHash = await bcrypt.hash(password, 12);
 
     // Create user and initial workspace in a transaction
     const user = await db.user.create({

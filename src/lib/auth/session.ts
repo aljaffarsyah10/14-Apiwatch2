@@ -14,7 +14,17 @@ export interface SessionPayload {
 }
 
 function getSecret(): string {
-  return process.env.AUTH_SECRET || "default-fallback-secret-for-apiwatch-dev-only-32bytes!";
+  const secret = process.env.AUTH_SECRET;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SECURITY FAULT: AUTH_SECRET must be defined in production environment");
+    }
+    return "default-fallback-secret-for-apiwatch-dev-only-32bytes!";
+  }
+  if (process.env.NODE_ENV === "production" && secret.length < 32) {
+    throw new Error("SECURITY FAULT: AUTH_SECRET must be at least 32 characters in production");
+  }
+  return secret;
 }
 
 /**
@@ -37,7 +47,8 @@ export function signSession(payload: Omit<SessionPayload, "expiresAt">): string 
 }
 
 /**
- * Verify and parse session token. Returns null if invalid, expired, or tampered.
+ * Verify and parse session token with timing-attack resistant signature comparison.
+ * Returns null if invalid, expired, or tampered.
  */
 export function verifySession(token: string): SessionPayload | null {
   if (!token || !token.includes(".")) return null;
@@ -50,8 +61,12 @@ export function verifySession(token: string): SessionPayload | null {
     .update(payloadBase64)
     .digest("base64url");
 
-  if (signature !== expectedSignature) {
-    return null; // Tampered token
+  // Constant-time comparison to prevent timing attacks on HMAC signatures
+  const sigBuf = Buffer.from(signature);
+  const expectedBuf = Buffer.from(expectedSignature);
+
+  if (sigBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(sigBuf, expectedBuf)) {
+    return null; // Tampered or forged signature
   }
 
   try {
