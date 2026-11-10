@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSessionOrDefault } from "@/lib/auth/session";
 import db from "@/lib/db";
 
 interface RouteContext {
@@ -8,6 +9,20 @@ interface RouteContext {
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
+    const session = await getSessionOrDefault();
+
+    const endpoint = await db.endpoint.findFirst({
+      where: { id, workspaceId: session.workspaceId },
+      select: { id: true },
+    });
+
+    if (!endpoint) {
+      return NextResponse.json(
+        { success: false, error: "Endpoint not found" },
+        { status: 404 }
+      );
+    }
+
     const searchParams = request.nextUrl.searchParams;
     const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
 

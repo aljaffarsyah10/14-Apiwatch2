@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EndpointService } from "@/lib/services/endpoint.service";
-import { getOrCreateDefaultWorkspaceId } from "@/lib/services/workspace.helper";
+import { getSessionOrDefault } from "@/lib/auth/session";
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -9,9 +9,9 @@ interface RouteContext {
 export async function POST(_request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const workspaceId = await getOrCreateDefaultWorkspaceId();
+    const session = await getSessionOrDefault();
 
-    const updated = await EndpointService.pauseEndpoint(id, workspaceId);
+    const updated = await EndpointService.pauseEndpoint(id, session.workspaceId);
 
     return NextResponse.json({
       success: true,

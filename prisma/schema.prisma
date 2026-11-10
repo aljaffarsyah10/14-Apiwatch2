@@ -122,6 +122,8 @@ model Endpoint {
 
   @@index([workspaceId])
   @@index([isActive])
+  @@index([workspaceId, status])
+  @@index([workspaceId, isActive])
 }
 
 model MonitoringConfiguration {

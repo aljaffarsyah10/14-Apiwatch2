@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { EndpointService } from "@/lib/services/endpoint.service";
-import { getOrCreateDefaultWorkspaceId } from "@/lib/services/workspace.helper";
+import { getSessionOrDefault } from "@/lib/auth/session";
 import { endpointFormSchema } from "@/lib/validations/endpoint.schema";
 
 interface RouteContext {
@@ -10,9 +10,9 @@ interface RouteContext {
 export async function GET(_request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const workspaceId = await getOrCreateDefaultWorkspaceId();
+    const session = await getSessionOrDefault();
 
-    const endpoint = await EndpointService.getEndpointById(id, workspaceId);
+    const endpoint = await EndpointService.getEndpointById(id, session.workspaceId);
     if (!endpoint) {
       return NextResponse.json(
         { success: false, error: "Endpoint not found" },
@@ -36,7 +36,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
 export async function PATCH(request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const workspaceId = await getOrCreateDefaultWorkspaceId();
+    const session = await getSessionOrDefault();
     const body = await request.json();
 
     const parsed = endpointFormSchema.partial().safeParse(body);
@@ -51,7 +51,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
       );
     }
 
-    const updated = await EndpointService.updateEndpoint(id, parsed.data, workspaceId);
+    const updated = await EndpointService.updateEndpoint(id, parsed.data, session.workspaceId);
 
     return NextResponse.json({
       success: true,
@@ -69,9 +69,9 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
 export async function DELETE(_request: NextRequest, context: RouteContext) {
   try {
     const { id } = await context.params;
-    const workspaceId = await getOrCreateDefaultWorkspaceId();
+    const session = await getSessionOrDefault();
 
-    await EndpointService.deleteEndpoint(id, workspaceId);
+    await EndpointService.deleteEndpoint(id, session.workspaceId);
 
     return NextResponse.json({
       success: true,
