@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#111116"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#141417"/>
+    </linearGradient>
+    <linearGradient id="blueAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="greenAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+    <linearGradient id="chartLine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="50%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    .text-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; fill: #f4f4f5; }
+    .text-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #a1a1aa; }
+    .text-mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; fill: #e4e4e7; }
+    .text-dim { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; fill: #71717a; }
+  </style>
+
+  <!-- Outer Canvas Window -->
+  <rect width="1200" height="680" rx="16" fill="url(#bgGrad)" stroke="#27272a" stroke-width="1.5"/>
+
+  <!-- Top Window Bar -->
+  <rect x="0" y="0" width="1200" height="48" rx="16" fill="#18181b" stroke="#27272a" stroke-width="1"/>
+  <rect x="0" y="32" width="1200" height="16" fill="#18181b"/> <!-- square bottom corners -->
+
+  <!-- Window Dots -->
+  <circle cx="28" cy="24" r="6" fill="#ef4444" />
+  <circle cx="48" cy="24" r="6" fill="#f59e0b" />
+  <circle cx="68" cy="24" r="6" fill="#10b981" />
+
+  <!-- Window Title -->
+  <text x="120" y="28" class="text-title" font-size="13" fill="#a1a1aa">APIWatch — Production Observability Dashboard</text>
+
+  <!-- Global Command Palette Search Bar (Cmd+K) -->
+  <rect x="420" y="10" width="360" height="28" rx="6" fill="#09090b" stroke="#27272a"/>
+  <text x="440" y="28" class="text-dim" font-size="12">Search endpoints, incidents, or jump to... (⌘K)</text>
+  <rect x="740" y="14" width="30" height="20" rx="4" fill="#27272a"/>
+  <text x="747" y="28" class="text-dim" font-size="10" fill="#a1a1aa">⌘K</text>
+
+  <!-- Right Header Icons -->
+  <rect x="1040" y="12" width="136" height="24" rx="12" fill="rgba(59, 130, 246, 0.15)" stroke="rgba(59, 130, 246, 0.4)"/>
+  <circle cx="1054" cy="24" r="4" fill="#3b82f6"/>
+  <text x="1066" y="28" class="text-title" font-size="11" fill="#60a5fa">Pro Trial (12d left)</text>
+
+  <!-- Sidebar (Left) -->
+  <rect x="20" y="68" width="200" height="592" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+  
+  <!-- Sidebar Brand -->
+  <rect x="36" y="86" width="28" height="28" rx="8" fill="url(#blueAccent)"/>
+  <path d="M47 92 L53 100 L49 100 L51 108 L45 100 L49 100 Z" fill="#ffffff"/>
+  <text x="72" y="105" class="text-title" font-size="16">APIWatch</text>
+  <text x="156" y="103" class="text-dim" font-size="9" fill="#3b82f6">PRO</text>
+
+  <!-- Nav Items -->
+  <rect x="32" y="132" width="176" height="34" rx="6" fill="rgba(59, 130, 246, 0.15)"/>
+  <text x="56" y="154" class="text-title" font-size="13" fill="#60a5fa">📊 Overview</text>
+
+  <text x="56" y="194" class="text-body">🌐 Endpoints (18)</text>
+  <text x="56" y="234" class="text-body">🚨 Incidents (0)</text>
+  <text x="56" y="274" class="text-body">📈 SLA Reports</text>
+  <text x="56" y="314" class="text-body">⚡ Probe Sandbox</text>
+  <text x="56" y="354" class="text-body">💳 Subscriptions</text>
+  <text x="56" y="394" class="text-body">⚙️ Settings</text>
+
+  <line x1="36" y1="420" x2="204" y2="420" stroke="#27272a"/>
+  <text x="56" y="446" class="text-dim">SYSTEM HEALTH</text>
+  <circle cx="58" cy="470" r="4" fill="#10b981"/>
+  <text x="70" y="474" class="text-body" font-size="12">PostgreSQL: 2ms</text>
+  <circle cx="58" cy="498" r="4" fill="#10b981"/>
+  <text x="70" y="502" class="text-body" font-size="12">Redis: 1ms</text>
+  <circle cx="58" cy="526" r="4" fill="#10b981"/>
+  <text x="70" y="530" class="text-body" font-size="12">BullMQ Worker: 10/10</text>
+
+  <!-- Main Content Area (Right) -->
+  <!-- Top 4 KPI Cards -->
+  <g transform="translate(236, 68)">
+    <!-- KPI 1: Total Endpoints -->
+    <rect x="0" y="0" width="220" height="88" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+    <text x="18" y="26" class="text-dim">MONITORED ENDPOINTS</text>
+    <text x="18" y="58" class="text-title" font-size="28">18</text>
+    <rect x="140" y="38" width="62" height="20" rx="10" fill="rgba(16, 185, 129, 0.15)"/>
+    <text x="148" y="52" class="text-body" font-size="11" fill="#10b981">100% Up</text>
+
+    <!-- KPI 2: Global Uptime -->
+    <rect x="236" y="0" width="220" height="88" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+    <text x="254" y="26" class="text-dim">24-HOUR AVAILABILITY</text>
+    <text x="254" y="58" class="text-title" font-size="28" fill="#10b981">99.98%</text>
+    <text x="366" y="58" class="text-dim" font-size="11">SLA Target 99.9%</text>
+
+    <!-- KPI 3: P95 Latency -->
+    <rect x="472" y="0" width="220" height="88" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+    <text x="490" y="26" class="text-dim">P95 RESPONSE TIME</text>
+    <text x="490" y="58" class="text-title" font-size="28" fill="#3b82f6">42ms</text>
+    <text x="562" y="58" class="text-dim" font-size="11">⚡ -8ms vs avg</text>
+
+    <!-- KPI 4: Active Incidents -->
+    <rect x="708" y="0" width="236" height="88" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+    <text x="726" y="26" class="text-dim">ACTIVE INCIDENTS</text>
+    <text x="726" y="58" class="text-title" font-size="28" fill="#f4f4f5">0</text>
+    <rect x="836" y="38" width="90" height="20" rx="10" fill="rgba(16, 185, 129, 0.15)"/>
+    <text x="844" y="52" class="text-body" font-size="11" fill="#10b981">● Operational</text>
+  </g>
+
+  <!-- Live Latency Chart Card -->
+  <g transform="translate(236, 172)">
+    <rect x="0" y="0" width="944" height="156" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+    <text x="20" y="26" class="text-title" font-size="14">Real-Time Response Latency (Last 24 Hours)</text>
+    <text x="780" y="26" class="text-dim">Avg: 38ms • Min: 18ms • Max: 84ms</text>
+
+    <!-- Latency Sparkline Grid -->
+    <line x1="20" y1="50" x2="924" y2="50" stroke="#27272a" stroke-dasharray="3,3"/>
+    <line x1="20" y1="85" x2="924" y2="85" stroke="#27272a" stroke-dasharray="3,3"/>
+    <line x1="20" y1="120" x2="924" y2="120" stroke="#27272a" stroke-dasharray="3,3"/>
+
+    <!-- Sparkline Polyline -->
+    <path d="M 20 100 Q 80 80, 140 92 T 260 70 T 380 85 T 500 60 T 620 78 T 740 68 T 860 74 L 924 64" 
+          fill="none" stroke="url(#chartLine)" stroke-width="2.5" filter="url(#glow)"/>
+    
+    <!-- Time axis labels -->
+    <text x="20" y="142" class="text-dim">00:00 UTC</text>
+    <text x="240" y="142" class="text-dim">06:00 UTC</text>
+    <text x="480" y="142" class="text-dim">12:00 UTC</text>
+    <text x="720" y="142" class="text-dim">18:00 UTC</text>
+    <text x="890" y="142" class="text-dim">Now</text>
+  </g>
+
+  <!-- Monitored Endpoints Table Card -->
+  <g transform="translate(236, 344)">
+    <rect x="0" y="0" width="944" height="316" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+    
+    <!-- Table Header Controls -->
+    <text x="20" y="28" class="text-title" font-size="14">Active Monitored Endpoints</text>
+    <rect x="680" y="12" width="110" height="26" rx="6" fill="#27272a"/>
+    <text x="696" y="29" class="text-body" font-size="11">⚡ Check All</text>
+    <rect x="804" y="12" width="124" height="26" rx="6" fill="url(#blueAccent)"/>
+    <text x="818" y="29" class="text-title" font-size="11" fill="#ffffff">+ New Endpoint</text>
+
+    <!-- Table Column Headers -->
+    <line x1="0" y1="50" x2="944" y2="50" stroke="#27272a"/>
+    <text x="20" y="68" class="text-dim">ENDPOINT NAME &amp; TARGET URL</text>
+    <text x="440" y="68" class="text-dim">METHOD</text>
+    <text x="520" y="68" class="text-dim">INTERVAL</text>
+    <text x="610" y="68" class="text-dim">STATUS</text>
+    <text x="710" y="68" class="text-dim">LATENCY</text>
+    <text x="800" y="68" class="text-dim">24H SLA</text>
+    <text x="880" y="68" class="text-dim">ACTIONS</text>
+
+    <!-- Row 1: Checkout API -->
+    <line x1="0" y1="80" x2="944" y2="80" stroke="#1f1f23"/>
+    <circle cx="28" cy="102" r="4" fill="#10b981"/>
+    <text x="42" y="98" class="text-title" font-size="13">Production Checkout API</text>
+    <text x="42" y="114" class="text-mono" font-size="11" fill="#71717a">https://api.company.com/v1/checkout</text>
+    <rect x="440" y="92" width="46" height="20" rx="4" fill="rgba(99, 102, 241, 0.2)"/>
+    <text x="448" y="106" class="text-mono" font-size="10" fill="#818cf8">POST</text>
+    <text x="520" y="106" class="text-body">30s</text>
+    <rect x="610" y="92" width="68" height="20" rx="10" fill="rgba(16, 185, 129, 0.15)"/>
+    <text x="620" y="106" class="text-body" font-size="11" fill="#10b981">● 200 OK</text>
+    <text x="710" y="106" class="text-title" font-size="12" fill="#3b82f6">38ms</text>
+    <text x="800" y="106" class="text-body" font-size="12" fill="#10b981">99.99%</text>
+    <text x="880" y="106" class="text-body">Check • Edit</text>
+
+    <!-- Row 2: User Auth Gateway -->
+    <line x1="0" y1="130" x2="944" y2="130" stroke="#1f1f23"/>
+    <circle cx="28" cy="152" r="4" fill="#10b981"/>
+    <text x="42" y="148" class="text-title" font-size="13">User Authentication Gateway</text>
+    <text x="42" y="164" class="text-mono" font-size="11" fill="#71717a">https://auth.company.com/oauth/token</text>
+    <rect x="440" y="142" width="46" height="20" rx="4" fill="rgba(99, 102, 241, 0.2)"/>
+    <text x="448" y="156" class="text-mono" font-size="10" fill="#818cf8">POST</text>
+    <text x="520" y="156" class="text-body">60s</text>
+    <rect x="610" y="142" width="68" height="20" rx="10" fill="rgba(16, 185, 129, 0.15)"/>
+    <text x="620" y="156" class="text-body" font-size="11" fill="#10b981">● 200 OK</text>
+    <text x="710" y="156" class="text-title" font-size="12" fill="#3b82f6">54ms</text>
+    <text x="800" y="156" class="text-body" font-size="12" fill="#10b981">100%</text>
+    <text x="880" y="156" class="text-body">Check • Edit</text>
+
+    <!-- Row 3: Stripe Payment Webhooks -->
+    <line x1="0" y1="180" x2="944" y2="180" stroke="#1f1f23"/>
+    <circle cx="28" cy="202" r="4" fill="#10b981"/>
+    <text x="42" y="198" class="text-title" font-size="13">Stripe Payment Webhook Ingestion</text>
+    <text x="42" y="214" class="text-mono" font-size="11" fill="#71717a">https://pay.company.com/webhooks/stripe</text>
+    <rect x="440" y="192" width="46" height="20" rx="4" fill="rgba(99, 102, 241, 0.2)"/>
+    <text x="448" y="206" class="text-mono" font-size="10" fill="#818cf8">POST</text>
+    <text x="520" y="206" class="text-body">60s</text>
+    <rect x="610" y="192" width="68" height="20" rx="10" fill="rgba(16, 185, 129, 0.15)"/>
+    <text x="620" y="206" class="text-body" font-size="11" fill="#10b981">● 200 OK</text>
+    <text x="710" y="206" class="text-title" font-size="12" fill="#3b82f6">29ms</text>
+    <text x="800" y="206" class="text-body" font-size="12" fill="#10b981">99.98%</text>
+    <text x="880" y="206" class="text-body">Check • Edit</text>
+
+    <!-- Row 4: Public Status & Health -->
+    <line x1="0" y1="230" x2="944" y2="230" stroke="#1f1f23"/>
+    <circle cx="28" cy="252" r="4" fill="#10b981"/>
+    <text x="42" y="248" class="text-title" font-size="13">Public SLA Status &amp; Health Probe</text>
+    <text x="42" y="264" class="text-mono" font-size="11" fill="#71717a">https://api.company.com/api/health?probe=ready</text>
+    <rect x="440" y="242" width="46" height="20" rx="4" fill="rgba(16, 185, 129, 0.2)"/>
+    <text x="452" y="256" class="text-mono" font-size="10" fill="#34d399">GET</text>
+    <text x="520" y="256" class="text-body">30s</text>
+    <rect x="610" y="242" width="68" height="20" rx="10" fill="rgba(16, 185, 129, 0.15)"/>
+    <text x="620" y="256" class="text-body" font-size="11" fill="#10b981">● 200 OK</text>
+    <text x="710" y="256" class="text-title" font-size="12" fill="#3b82f6">18ms</text>
+    <text x="800" y="256" class="text-body" font-size="12" fill="#10b981">100%</text>
+    <text x="880" y="256" class="text-body">Check • Edit</text>
+
+    <!-- Table Footer / Pagination -->
+    <line x1="0" y1="280" x2="944" y2="280" stroke="#27272a"/>
+    <text x="20" y="302" class="text-dim">Showing 1 to 4 of 18 endpoints</text>
+    <text x="780" y="302" class="text-dim">SSRF Guard: Active (Zero Egress)</text>
+    <text x="900" y="302" class="text-body">Page 1 of 5 →</text>
+  </g>
+</svg>

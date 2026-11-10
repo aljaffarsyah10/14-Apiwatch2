@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" width="100%" height="100%">
+  <defs>
+    <linearGradient id="ssrfBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#141419"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#111114"/>
+    </linearGradient>
+    <linearGradient id="redGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#991b1b"/>
+    </linearGradient>
+    <linearGradient id="greenGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; fill: #f4f4f5; }
+    .subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #a1a1aa; }
+    .step-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; font-weight: 600; fill: #f4f4f5; }
+    .step-desc { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; fill: #71717a; }
+    .badge { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 10px; font-weight: 600; }
+  </style>
+
+  <!-- Background -->
+  <rect width="960" height="380" rx="14" fill="url(#ssrfBg)" stroke="#27272a" stroke-width="1.5"/>
+
+  <!-- Header -->
+  <text x="32" y="38" class="title" font-size="18">Multi-Layer SSRF Zero-Trust Defense Pipeline</text>
+  <text x="32" y="58" class="subtitle">Preventing internal cloud credential theft, AWS metadata probing, and intranet port scanning</text>
+
+  <!-- 4 Step Flow Cards -->
+  <!-- Step 1: Input URL Parsing -->
+  <g transform="translate(32, 90)">
+    <rect x="0" y="0" width="200" height="180" rx="8" fill="url(#cardGrad)" stroke="#27272a"/>
+    <circle cx="28" cy="28" r="14" fill="#27272a"/>
+    <text x="24" y="33" class="badge" fill="#3b82f6">1</text>
+    <text x="52" y="32" class="step-title">URL Schema Parse</text>
+    <text x="16" y="65" class="step-desc">• Extract protocol &amp; host</text>
+    <text x="16" y="85" class="step-desc">• Whitelist http:// &amp; https://</text>
+    <text x="16" y="105" class="step-desc">• Reject file://, gopher://, ftp://</text>
+    <text x="16" y="125" class="step-desc">• Strip credentials in URL</text>
+    <rect x="16" y="145" width="80" height="20" rx="4" fill="rgba(59, 130, 246, 0.15)"/>
+    <text x="24" y="159" class="badge" fill="#60a5fa">Schema OK</text>
+  </g>
+
+  <!-- Arrow 1 to 2 -->
+  <path d="M 242 180 L 262 180" stroke="#3b82f6" stroke-width="2"/>
+  <polygon points="266,180 258,176 258,184" fill="#3b82f6"/>
+
+  <!-- Step 2: DNS Resolution Guard -->
+  <g transform="translate(272, 90)">
+    <rect x="0" y="0" width="200" height="180" rx="8" fill="url(#cardGrad)" stroke="#27272a"/>
+    <circle cx="28" cy="28" r="14" fill="#27272a"/>
+    <text x="24" y="33" class="badge" fill="#3b82f6">2</text>
+    <text x="52" y="32" class="step-title">DNS Resolution</text>
+    <text x="16" y="65" class="step-desc">• Resolve Host to IPv4 &amp; IPv6</text>
+    <text x="16" y="85" class="step-desc">• Unmask DNS Rebinding attacks</text>
+    <text x="16" y="105" class="step-desc">• Verify CNAME alias targets</text>
+    <text x="16" y="125" class="step-desc">• Guard against 0.0.0.0 bypass</text>
+    <rect x="16" y="145" width="80" height="20" rx="4" fill="rgba(59, 130, 246, 0.15)"/>
+    <text x="24" y="159" class="badge" fill="#60a5fa">DNS Resolved</text>
+  </g>
+
+  <!-- Arrow 2 to 3 -->
+  <path d="M 482 180 L 502 180" stroke="#3b82f6" stroke-width="2"/>
+  <polygon points="506,180 498,176 498,184" fill="#3b82f6"/>
+
+  <!-- Step 3: CIDR Subnet Blacklist Evaluation -->
+  <g transform="translate(512, 90)">
+    <rect x="0" y="0" width="200" height="180" rx="8" fill="url(#cardGrad)" stroke="#ef4444" stroke-width="1.5"/>
+    <circle cx="28" cy="28" r="14" fill="url(#redGlow)"/>
+    <text x="24" y="33" class="badge" fill="#ffffff">3</text>
+    <text x="52" y="32" class="step-title">Subnet Filtering</text>
+    <text x="16" y="65" class="step-desc">🚫 127.0.0.0/8 (Loopback)</text>
+    <text x="16" y="85" class="step-desc">🚫 10.0.0.0/8, 192.168.0.0/16</text>
+    <text x="16" y="105" class="step-desc">🚫 172.16.0.0/12 (Docker)</text>
+    <text x="16" y="125" class="step-desc">🚫 169.254.169.254 (Cloud IMDS)</text>
+    <rect x="16" y="145" width="90" height="20" rx="4" fill="rgba(239, 68, 68, 0.2)"/>
+    <text x="22" y="159" class="badge" fill="#f87171">Strict Block</text>
+  </g>
+
+  <!-- Arrow 3 to 4 -->
+  <path d="M 722 180 L 742 180" stroke="#10b981" stroke-width="2"/>
+  <polygon points="746,180 738,176 738,184" fill="#10b981"/>
+
+  <!-- Step 4: Sandboxed Probe Execution -->
+  <g transform="translate(752, 90)">
+    <rect x="0" y="0" width="180" height="180" rx="8" fill="url(#cardGrad)" stroke="#10b981" stroke-width="1.5"/>
+    <circle cx="28" cy="28" r="14" fill="url(#greenGlow)"/>
+    <text x="24" y="33" class="badge" fill="#ffffff">4</text>
+    <text x="52" y="32" class="step-title">Safe Probe Egress</text>
+    <text x="16" y="65" class="step-desc">• Enforce timeout limit (30s)</text>
+    <text x="16" y="85" class="step-desc">• Prevent redirect looping</text>
+    <text x="16" y="105" class="step-desc">• Pin IP for connection</text>
+    <text x="16" y="125" class="step-desc">• Collect latency &amp; headers</text>
+    <rect x="16" y="145" width="96" height="20" rx="4" fill="rgba(16, 185, 129, 0.2)"/>
+    <text x="22" y="159" class="badge" fill="#34d399">Probe Executed</text>
+  </g>
+
+  <!-- Bottom Banner Alert -->
+  <g transform="translate(32, 296)">
+    <rect x="0" y="0" width="900" height="54" rx="8" fill="#18181b" stroke="#27272a"/>
+    <text x="20" y="24" class="title" font-size="12" fill="#10b981">🔒 Zero Egress to Internal Infrastructure Guarantee</text>
+    <text x="20" y="42" class="subtitle" font-size="11">Attempts to probe internal Docker container services (postgres:5432, redis:6379, host network) are halted before socket opening.</text>
+  </g>
+</svg>

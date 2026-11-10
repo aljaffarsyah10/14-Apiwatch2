@@ -1,19 +1,25 @@
-# 🛰️ APIWatch — Real-time API Monitoring Platform
+# 🛰️ APIWatch — Enterprise Real-Time API Monitoring Platform
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-16.4.5-000000.svg?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-06B6D4.svg?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Prisma ORM](https://img.shields.io/badge/Prisma-6.19-2D3748.svg?logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![BullMQ](https://img.shields.io/badge/BullMQ-6.7-CC292B.svg?logo=bull&logoColor=white)](https://bullmq.io/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Redis](https://img.shields.io/badge/Redis-7-DC382D.svg?logo=redis&logoColor=white)](https://redis.io/)
-[![Caddy](https://img.shields.io/badge/Caddy-2-22B573.svg?logo=caddy&logoColor=white)](https://caddyserver.com/)
-[![Vitest](https://img.shields.io/badge/Tests-134%20Passed-brightgreen.svg?logo=vitest&logoColor=white)](https://vitest.dev/)
-[![Security](https://img.shields.io/badge/SSRF%20Guard-Zero%20Trust-success.svg)](#-arsitektur-keamanan--hardening)
-[![Prometheus](https://img.shields.io/badge/Metrics-Prometheus%20APM-E6522C.svg?logo=prometheus&logoColor=white)](./docs/API_DOCUMENTATION.md#7-system-health--observability-apis)
-[![SaaS](https://img.shields.io/badge/SaaS-Free%20%2F%20Pro%20Tier-blue.svg)](./src/app/pricing/page.tsx)
+<p align="center">
+  <img src="./public/docs/apiwatch-dashboard-preview.svg" alt="APIWatch Production Observability Dashboard" width="100%">
+</p>
 
-**APIWatch** adalah platform SaaS pemantauan API (*API Monitoring*) modern berbasis arsitektur **modular monolith** dengan background worker decoupled. Dirancang untuk developer dan tim engineering dalam mengawasi performa, ketersediaan (*uptime SLA*), validasi respon (*deep assertions*), penanganan siklus insiden, serta publikasi papan status (*status page*) secara real-time dan aman.
+<p align="center">
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5.x-3178C6.svg?logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Next.js-16.4.5-000000.svg?logo=nextdotjs&logoColor=white" alt="Next.js"></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Tailwind-v4-06B6D4.svg?logo=tailwindcss&logoColor=white" alt="Tailwind CSS"></a>
+  <a href="https://www.prisma.io/"><img src="https://img.shields.io/badge/Prisma-6.19-2D3748.svg?logo=prisma&logoColor=white" alt="Prisma"></a>
+  <a href="https://bullmq.io/"><img src="https://img.shields.io/badge/BullMQ-6.7-CC292B.svg?logo=bull&logoColor=white" alt="BullMQ"></a>
+  <a href="https://www.postgresql.org/"><img src="https://img.shields.io/badge/PostgreSQL-16-4169E1.svg?logo=postgresql&logoColor=white" alt="PostgreSQL"></a>
+  <a href="https://redis.io/"><img src="https://img.shields.io/badge/Redis-7-DC382D.svg?logo=redis&logoColor=white" alt="Redis"></a>
+  <a href="https://caddyserver.com/"><img src="https://img.shields.io/badge/Caddy-2-22B573.svg?logo=caddy&logoColor=white" alt="Caddy"></a>
+  <a href="https://vitest.dev/"><img src="https://img.shields.io/badge/Tests-134%20Passed-brightgreen.svg?logo=vitest&logoColor=white" alt="Vitest"></a>
+  <a href="#-arsitektur-keamanan--hardening"><img src="https://img.shields.io/badge/SSRF%20Guard-Zero%20Trust-success.svg" alt="SSRF Guard"></a>
+  <a href="./docs/API_DOCUMENTATION.md#7-system-health--observability-apis"><img src="https://img.shields.io/badge/Metrics-Prometheus%20APM-E6522C.svg?logo=prometheus&logoColor=white" alt="Prometheus APM"></a>
+  <a href="./src/app/pricing/page.tsx"><img src="https://img.shields.io/badge/SaaS-Free%20%2F%20Pro%20Tier-blue.svg" alt="SaaS Tier"></a>
+</p>
+
+**APIWatch** adalah platform SaaS pemantauan API (*Synthetic API Monitoring & Outage Alerting*) modern berbasis arsitektur **modular monolith** dengan background worker terpisah (*decoupled worker daemon*). Dirancang khusus untuk developer dan tim engineering dalam memantau performa, latensi respon, ketersediaan (*uptime SLA*), asersi respon mendalam (*deep assertions*), siklus insiden otomatis, serta publikasi papan status publik (*status board*) dengan keamanan multi-layer zero-trust.
 
 ---
 
@@ -21,121 +27,125 @@
 
 - [Tentang APIWatch](#-tentang-apiwatch)
 - [Arsitektur Sistem](#-arsitektur-sistem)
-- [Fitur Utama](#-fitur-utama)
-- [Arsitektur Keamanan & Hardening](#-arsitektur-keamanan--hardening)
+- [Fitur Unggulan v2.0](#-fitur-unggulan-v20)
+- [Arsitektur Keamanan & Zero-Trust SSRF Guard](#-arsitektur-keamanan--zero-trust-ssrf-guard)
+- [Model Bisnis SaaS & Paket Berlangganan](#-model-bisnis-saas--paket-berlangganan)
+- [Observabilitas & Monitoring APM](#-observabilitas--monitoring-apm)
 - [Tech Stack](#-tech-stack)
 - [Struktur Direktori](#-struktur-direktori)
 - [Panduan Instalasi & Menjalankan Lokal](#-panduan-instalasi--menjalankan-lokal)
 - [Panduan Deployment Produksi (Docker Compose)](#-panduan-deployment-produksi-docker-compose)
+- [Automated Smoke Testing](#-automated-smoke-testing)
 - [Referensi REST API](#-referensi-rest-api)
 - [Pengujian & Verifikasi Kualitas](#-pengujian--verifikasi-kualitas)
-- [Dokumentasi Lengkap](#-dokumentasi-lengkap)
+- [Direktori Dokumentasi Lengkap](#-direktori-dokumentasi-lengkap)
 - [Lisensi](#-lisensi)
 
 ---
 
 ## 💡 Tentang APIWatch
 
-Ketergantungan terhadap integritas dan kecepatan API semakin tinggi. Seringkali kegagalan API baru diketahui setelah ada keluhan dari pengguna akhir. 
+Ketergantungan terhadap integritas dan kecepatan API saat ini sangat krusial bagi aplikasi web dan mobile. Sering kali gangguan (*outage*) baru disadari setelah pelanggan menyampaikan komplain.
 
-**APIWatch** mengatasi masalah ini dengan:
-1. **Automated Probing**: Menjalankan pengecekan kesehatan API berkala (1 hingga 60 menit) dengan penanganan timeout, header custom, dan autentikasi.
-2. **Deep Assertion Engine**: Tidak hanya mengecek status HTTP 200, melainkan mencocokkan range status, batas toleransi latensi (< ms), header wajib, serta pencocokan JSON path atau potongan kata pada body respon.
-3. **Automated Incident Lifecycle**: Membuka insiden otomatis saat terdeteksi kegagalan beruntun, mencatat timeline, dan mengirimkan email pemberitahuan ke tim.
-4. **Public Trust**: Menyediakan halaman status publik (`/status`) yang independen agar pelanggan dan stakeholder dapat melihat uptime layanan tanpa harus login.
+**APIWatch** memecahkan masalah ini secara proaktif:
+1. **Automated Probing**: Menjalankan pengecekan terjadwal (mulai dari 30 detik hingga 60 menit) dengan timeout handling, custom headers, auth bearer token, dan request body.
+2. **Deep Assertion Engine**: Memvalidasi status code HTTP, batas latensi toleransi (< ms), header wajib, serta pencocokan substring/JSON body.
+3. **Automated Incident Lifecycle**: Membuka insiden otomatis saat terdeteksi kegagalan berturut-turut, melacak durasi downtime, dan menyebarkan email alert atau webhook instan.
+4. **Public Trust**: Menyediakan halaman status publik (`/status`) independen tanpa mengharuskan pengguna login.
 
 ---
 
 ## 🏗️ Arsitektur Sistem
 
-APIWatch dibangun dengan filosofi **Modular Monolith**: satu codebase terpadu yang memisahkan tanggung jawab web/API dengan eksekusi monitoring berat via background queue.
+APIWatch dibangun dengan filosofi **Modular Monolith**: satu codebase terpadu yang memisahkan tanggung jawab web/API dengan antrean worker berat melalui antrean **BullMQ** dan **Redis 7**.
 
-```
-[ Internet / Browsers / Stakeholders ]
-                  │
-                  ▼ (Port 80 / 443)
-┌────────────────────────────────────────────────────────┐
-│  Reverse Proxy: Caddy 2                                │
-│  - Otomatisasi Sertifikat SSL/TLS (Let's Encrypt)      │
-│  - Enforce HTTPS & Header Keamanan (HSTS, CSP, Sniff)  │
-│  - Gzip & Zstandard Compression                        │
-└──────────────────────────┬─────────────────────────────┘
-                           │ (Internal Docker Bridge Network)
-         ┌─────────────────┴─────────────────┐
-         ▼ (Port 3000)                       ▼
-┌─────────────────────────┐       ┌─────────────────────────┐
-│ Next.js 16 Web App      │       │ BullMQ Dedicated Worker │
-│ - Dashboard UI (React19)│       │ - HTTP Check Executor   │
-│ - REST API Handlers     │       │ - SSRF Sandbox Guard    │
-│ - Stateless Auth (HMAC) │       │ - Incident Detector     │
-│ - Public Status Page    │       │ - Email Alert Dispatcher│
-└───────────┬─────────────┘       └───────────┬─────────────┘
-            │                                 │
-     ┌──────┴──────────────┐   ┌──────────────┴──────┐
-     ▼                     ▼   ▼                     ▼
-┌─────────────────────────┐     ┌─────────────────────────┐
-│ PostgreSQL 16 Alpine    │     │ Redis 7 Alpine          │
-│ - Database Multi-tenant │     │ - BullMQ Job Queue      │
-│ - Volume Persisten      │     │ - Repeatable Scheduler  │
-│ - Jaringan Internal     │     │ - Proteksi Password     │
-└─────────────────────────┘     └─────────────────────────┘
-```
+<p align="center">
+  <img src="./public/docs/architecture-v2.svg" alt="APIWatch Modular Monolith Architecture" width="100%">
+</p>
+
+### Komponen Utama:
+- **Caddy 2 Reverse Proxy**: Mengelola terminasi TLS otomatis via Let's Encrypt, HTTP-to-HTTPS redirect, kompresi Gzip/Zstandard, dan header keamanan HSTS.
+- **Next.js 16 Web Application**: Menyajikan dashboard interaktif (React 19), REST API endpoints, otentikasi HMAC stateless, dan integrasi webhook pembayaran.
+- **BullMQ Dedicated Worker**: Daemon terpisah yang menjalankan pengecekan HTTP berkecepatan tinggi, sandbox SSRF, dan pengiriman alert SMTP.
+- **Dual-Layer Cache**: Menggabungkan in-memory LRU cache dengan Redis 7 untuk akselerasi pembacaan ringkasan dashboard (< 5ms).
+- **PostgreSQL 16**: Basis data relasional dengan indeks komposit optimal pada riwayat pengecekan dan insiden.
 
 ---
 
-## ✨ Fitur Utama
+## ✨ Fitur Unggulan v2.0
 
-- 🌐 **Multi-Method Probing**: Mendukung HTTP method `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, dan `HEAD`.
-- ⏱️ **Jadwal Monitoring Fleksibel**: Interval otomatis setiap 1 menit, 5 menit, 15 menit, 30 menit, hingga 60 menit.
-- ⚡ **On-Demand "Check Now"**: Tombol diagnostik langsung untuk memicu pengecekan seketika tanpa menunggu jadwal cron.
-- 🎯 **Assertion Engine Multi-Kriteria**:
-  - Validasi Status Code (misal: `200`, `2xx`, `200-204`).
-  - Ambang Batas Latensi (misal: gagal jika respon > `800ms`).
-  - Header Validation (verifikasi keberadaan header `content-type`, `authorization`, dsb).
-  - Body Content Validation (pencocokan kata kunci atau struktur JSON).
-- 🚨 **Incident Management**:
-  - Siklus status insiden lengkap: `OPEN` ➡️ `ACKNOWLEDGED` ➡️ `RESOLVED`.
-  - Notifikasi email otomatis via SMTP saat insiden terjadi dan saat pulih (*resolved*).
-- 📊 **Telemetri Visual**: Grafik respon interaktif via **Recharts**, kalkulasi persentase ketersediaan (*uptime SLA*), dan breakdown kode status.
-- 📢 **Public Status Board (`/status`)**: Halaman ketersediaan publik yang aman diakses publik tanpa login untuk transparansi SLA.
-- 📄 **Dokumentasi API Interaktif**: Generator dokumentasi endpoint otomatis (`/api/endpoints/[id]/docs`) untuk integrasi tim.
-- 📥 **Laporan & Ekspor Data**: Rekap SLA periode 24 jam, 7 hari, 30 hari, dan 90 hari dengan fasilitas ekspor CSV.
+- ⌨️ **Global Command Palette (`⌘K` / `Ctrl+K`)**: Akses navigasi cepat ke seluruh endpoint, pencarian instan, pintasan laporan, dan dokumentasi API.
+- 📦 **Bulk Actions & Multi-Select**: Jeda (*pause*), aktifkan kembali (*resume*), atau hapus banyak endpoint sekaligus hanya dengan sekali klik.
+- ⚡ **Batch Check-All**: Pemicu pengecekan diagnostik instan secara paralel untuk seluruh endpoint dalam workspace.
+- 🔍 **Filtering & Multi-Column Sorting**: Urutkan endpoint berdasarkan nama, latensi p95, persentase uptime, atau status kesehatan terkini.
+- 📈 **SLA Reports & CWE-1236 Safe Export**: Download laporan performa ketersediaan (24h, 7d, 30d, 90d) berformat CSV atau JSON dengan sanitasi injeksi spreadsheet otomatis.
+- 🚀 **Onboarding Wizard**: Panduan langkah demi langkah untuk pengguna baru dalam mendaftarkan endpoint perdana dan menguji notifikasi webhook.
+- 📢 **Public SLA Status Board (`/status`)**: Menampilkan ketersediaan layanan publik secara real-time dengan status badges dan riwayat insiden.
 
 ---
 
-## 🔒 Arsitektur Keamanan & Hardening
+## 🔒 Arsitektur Keamanan & Zero-Trust SSRF Guard
 
-APIWatch menerapkan prinsip **Defense in Depth**:
+Pengecekan API pengguna rentan disalahgunakan untuk menyerang jaringan internal (*Server-Side Request Forgery*). APIWatch menerapkan **Zero-Trust Multi-Layer SSRF Guard**:
 
-| Vektor Keamanan | Implementasi | Mekanisme Perlindungan |
+<p align="center">
+  <img src="./public/docs/ssrf-defense-flow.svg" alt="APIWatch Multi-Layer SSRF Defense Pipeline" width="100%">
+</p>
+
+| Lapisan Keamanan | Implementasi Teknis | Perlindungan yang Diberikan |
 | :--- | :--- | :--- |
-| **SSRF (Server-Side Request Forgery)** | [`src/lib/monitoring/ssrf-guard.ts`](file:///d:/10Project/14-OrderInbox/src/lib/monitoring/ssrf-guard.ts) | Resolusi DNS awal dan pencegahan koneksi ke IP privat (RFC 1918), loopback (`127.0.0.1`, `::1`), link-local cloud metadata (`169.254.169.254`), serta pemblokiran protokol non-HTTP (`file://`, `ftp://`, `gopher://`). |
-| **Enkripsi Data Sensitif** | [`src/lib/crypto.ts`](file:///d:/10Project/14-OrderInbox/src/lib/crypto.ts) | Token autentikasi, bearer token, dan custom header terenkripsi di database menggunakan algoritma **AES-256-GCM** dengan checksum autentikasi. |
-| **CWE-1236 Formula Injection** | [`src/lib/csv.ts`](file:///d:/10Project/14-OrderInbox/src/lib/csv.ts) | Menetralisir eksploitasi CSV injection pada spreadsheet dengan menambahkan prefiks tanda petik tunggal (`'`) pada sel yang diawali karakter formula (`=`, `+`, `-`, `@`, `\t`, `\r`). |
-| **Stateless Cookie Session** | [`src/lib/auth/session.ts`](file:///d:/10Project/14-OrderInbox/src/lib/auth/session.ts) | Token sesi ditandatangani menggunakan SHA-256 HMAC untuk mencegah manipulasi, dikirim dengan atribut `HttpOnly`, `SameSite=Lax`, dan `Secure`. |
-| **Isolasi Database & Redis** | [`docker-compose.yml`](file:///d:/10Project/14-OrderInbox/docker-compose.yml) | Port PostgreSQL (5432) dan Redis (6379) hanya dibuka pada internal bridge network container dan **tidak pernah dipublikasikan ke internet terbuka**. |
+| **SSRF DNS Interceptor** | [`src/lib/monitoring/ssrf-guard.ts`](./src/lib/monitoring/ssrf-guard.ts) | Resolusi DNS awal dan pemblokiran otomatis subnet RFC 1918, loopback (`127.0.0.1`), IPv6 loopback (`::1`), link-local AWS metadata (`169.254.169.254`), serta penolakan skema non-HTTP (`file://`, `ftp://`). |
+| **Enkripsi Kredensial DB** | [`src/lib/crypto.ts`](./src/lib/crypto.ts) | Custom authorization headers, basic auth, dan token tersimpan di database menggunakan enkripsi simetris terotentikasi **AES-256-GCM**. |
+| **Stateless HMAC Sessions** | [`src/lib/auth/session.ts`](./src/lib/auth/session.ts) | Cookie sesi ditandatangani dengan SHA-256 HMAC (64-char hex key) dengan flag `HttpOnly; Secure; SameSite=Lax` dan prefiks `__Host-`. |
+| **Proteksi CSV Injection** | [`src/lib/csv.ts`](./src/lib/csv.ts) | Mengamankan sel CSV yang diawali karakter formula (`=`, `+`, `-`, `@`, `\t`, `\r`) dengan *single-quote escaping* (CWE-1236). |
+| **Isolasi Jaringan Docker** | [`docker-compose.yml`](./docker-compose.yml) | Database PostgreSQL dan Redis terikat strictly pada internal bridge network `apiwatch_internal` tanpa ekspos port ke internet. |
+
+---
+
+## 💼 Model Bisnis SaaS & Paket Berlangganan
+
+APIWatch dirancang sebagai produk SaaS siap komersialisasi dengan penegakan kuota multi-tier dan masa percobaan otomatis:
+
+<p align="center">
+  <img src="./public/docs/saas-billing-flow.svg" alt="APIWatch SaaS Subscription & Billing Flow" width="100%">
+</p>
+
+- **Free Starter ($0/bulan)**: 5 endpoint, interval cek 5 menit, retensi log 24 jam, notifikasi email, dan status page publik.
+- **Pro Tier ($29/bulan)**: **14-Day Free Pro Trial** otomatis tanpa kartu kredit, 25 endpoint, interval cek 30 detik, retensi 30 hari, alert multi-channel (Webhook/Slack), dan ekspor laporan SLA.
+- **Enterprise ($199/bulan)**: Endpoint tak terbatas, interval 10 detik, retensi 1 tahun, probe konsensus multi-region, custom domain status page, dan SLA 99.99%.
+- **Billing Engine**: Checkout simulator / gateway integration, faktur PDF/HTML yang dapat diunduh, serta webhook lifecycle processor (`invoice.payment_succeeded`, `subscription.updated`).
+
+---
+
+## 📊 Observabilitas & Monitoring APM
+
+APIWatch v2.0 dilengkapi infrastruktur telemetri mendalam:
+
+- **Prometheus Telemetry (`/api/metrics`)**: Mengekspos metrik `http_requests_total`, latensi kuantil p50/p95/p99, database query latency, penggunaan memori RSS, dan CPU time untuk scraper Prometheus/Grafana.
+- **Deep Readiness Probes (`/api/health?probe=ready`)**: Pengecekan aktif kesehatan konektivitas dan latensi terhadap PostgreSQL dan Redis.
+- **Structured JSON Logging**: Format log standar produksi dengan sanitasi otomatis data pribadi (PII redaction) terhadap token, password, dan header otorisasi.
+- **Runtime Error Tracker**: Pelacakan pengecualian dengan fingerprinting unik dan breadcrumb memori untuk diagnosis cepat tanpa mengorbankan privasi pengguna.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### Frontend
-- **Framework**: Next.js 16 (Turbopack, App Router, React 19)
-- **Styling**: Tailwind CSS v4 & shadcn/ui
+### Frontend & UI
+- **Framework**: Next.js 16 (Turbopack, App Router, Partial Prerendering)
+- **UI Library**: React 19, Tailwind CSS v4, shadcn/ui
 - **Icons & Charts**: Lucide React & Recharts
-- **Form & Validation**: React Hook Form & Zod
+- **State & Notifications**: Sonner, Radix UI Primitives
 
-### Backend & Monitoring Engine
-- **Runtime**: Node.js 20+ LTS / TypeScript 5
-- **ORM & Database**: Prisma ORM & PostgreSQL 16
-- **Antrean Pekerjaan**: BullMQ & Redis 7
-- **Transmisi Email**: Nodemailer (SMTP / transactional provider)
+### Backend & Engine
+- **Runtime**: Node.js 20+ LTS / TypeScript 5.x
+- **ORM & Database**: Prisma ORM 6.19 & PostgreSQL 16 Alpine
+- **Queue & Scheduler**: BullMQ 6.7 & Redis 7 Alpine
+- **Email Delivery**: Nodemailer (SMTP / Transactional Provider)
 
 ### DevOps & Infrastruktur
-- **Kontainerisasi**: Docker Engine & Docker Compose (Multi-stage Alpine builds)
-- **Web Server / Proxy**: Caddy 2 (Automatic TLS Let's Encrypt & HSTS)
-- **Testing**: Vitest (Unit & Integration tests)
-- **Code Quality**: ESLint 9 & TypeScript Strict Mode
+- **Containerization**: Docker Engine & Docker Compose (Multi-stage Alpine)
+- **Reverse Proxy**: Caddy 2 (Automatic TLS Let's Encrypt & HSTS)
+- **Testing Framework**: Vitest (134 automated unit, integration, api, and e2e tests)
 
 ---
 
@@ -143,51 +153,43 @@ APIWatch menerapkan prinsip **Defense in Depth**:
 
 ```
 apiwatch/
-├── .github/                     # Workflow CI/CD (jika ada)
+├── docs/                        # Dokumentasi teknis & operasional
+│   ├── API_DOCUMENTATION.md     # Spesifikasi lengkap REST API
+│   ├── PRODUCTION_CHECKLIST.md  # Checklist pre-flight & verification matrix
+│   ├── DATABASE_MIGRATION_GUIDE.md # Panduan migrasi database zero-downtime
+│   ├── ENVIRONMENT_CONFIGURATION.md # Referensi environment variables
+│   ├── ROLLBACK_STRATEGY.md     # Prosedur emergency rollback playbooks
+│   ├── POST_LAUNCH_MONITORING.md # SLI/SLO & Prometheus alerting rules
+│   └── PRODUCT_ROADMAP.md       # Roadmap pengembangan fitur masa depan
 ├── prisma/
-│   ├── schema.prisma            # Skema database PostgreSQL
-│   └── migrations/              # Riwayat migrasi Prisma
-├── public/                      # Aset statis & logo
+│   ├── schema.prisma            # Skema Prisma dengan indeks performa
+│   └── migrations/              # Riwayat migrasi SQL
+├── public/
+│   └── docs/                    # Diagram arsitektur & preview dashboard SVG
 ├── scripts/
-│   ├── backup.sh                # Skrip backup database harian terkompresi
-│   └── restore.sh               # Skrip pemulihan database
+│   ├── backup.sh                # Skrip backup database PostgreSQL harian
+│   ├── restore.sh               # Skrip pemulihan database
+│   ├── backup-db.sh             # Skrip backup mandiri dengan SHA-256 checksum
+│   ├── smoke-test.mjs           # Smoke test runner multi-platform (Node.js)
+│   └── smoke-test.sh            # Smoke test runner bash/cURL
 ├── src/
-│   ├── app/                     # Next.js App Router
-│   │   ├── (auth)/              # Halaman Login & Register
-│   │   ├── (dashboard)/         # Halaman Dashboard, Endpoints, Incidents, Reports, Settings
-│   │   ├── api/                 # REST Route Handlers (/auth, /endpoints, /health, /reports, dsb)
-│   │   ├── status/              # Public Status Page
-│   │   ├── layout.tsx           # Root layout
-│   │   └── page.tsx             # Landing page
-│   ├── components/
-│   │   ├── endpoints/           # Latency chart, assertion builder, form endpoint
-│   │   ├── layout/              # App sidebar, header, navigation
-│   │   ├── shared/              # Status badges, empty states, error fallbacks
-│   │   └── ui/                  # Komponen basis shadcn/ui
-│   └── lib/
-│       ├── auth/                # Stateless session & password hashing
-│       ├── monitoring/          # SSRF guard, HTTP executor, assertion evaluator
-│       ├── queue/               # Koneksi Redis & BullMQ job scheduler
-│       ├── services/            # EndpointService, MonitoringService, DashboardService
-│       ├── crypto.ts            # Enkripsi AES-256-GCM
-│       ├── csv.ts               # Sanitasi CSV formula injection
-│       └── db.ts                # Prisma database singleton client
+│   ├── app/                     # Next.js App Router (43 routes)
+│   │   ├── (auth)/              # Halaman Login & Registrasi
+│   │   ├── (dashboard)/         # Workspace: Dashboard, Endpoints, Incidents, Reports, Settings
+│   │   ├── api/                 # REST API Handlers (Endpoints, Billing, Health, Metrics, dll)
+│   │   ├── pricing/             # Halaman publik Pricing & Plans
+│   │   ├── status/              # Public Status Board
+│   │   ├── opengraph-image.tsx  # Dynamic Open Graph banner generator
+│   │   ├── robots.ts            # Robots.txt directives
+│   │   └── sitemap.ts           # Dynamic XML Sitemap
+│   ├── components/              # Komponen UI React 19
+│   └── lib/                     # Core logic, security, caching, observability, services
 ├── worker/
-│   └── src/
-│       └── index.ts             # Dedicated background worker daemon
-├── .dockerignore                # Filter build Docker
-├── .env.example                 # Template environment development
-├── .env.production.example      # Template environment production
-├── Caddyfile                    # Konfigurasi reverse proxy & HTTPS
-├── DEPLOYMENT_GUIDE.md          # Panduan operasional & deployment VPS
-├── Dockerfile                   # Multi-stage Dockerfile Next.js
+│   └── src/index.ts             # Dedicated background probe worker daemon
+├── docker-compose.yml           # Orkestrasi 5 container produksi
+├── Dockerfile                   # Multi-stage Dockerfile Next.js standalone
 ├── Dockerfile.worker            # Dockerfile background worker
-├── docker-compose.yml           # Orkestrasi multi-container
-├── PROJECT_PRD_AND_PLAYBOOK.md  # Dokumen spesifikasi 10 phase
-├── RELEASE_NOTES.md             # Catatan rilis v1.0.0
-├── TECHNICAL_PLAN.md            # Cetak biru arsitektur
-├── TEST_REPORT.md               # Laporan pengujian Phase 9
-└── UI_UX_GUIDE.md               # Panduan desain UI/UX
+└── Caddyfile                    # Konfigurasi reverse proxy & HTTPS
 ```
 
 ---
@@ -195,10 +197,10 @@ apiwatch/
 ## 💻 Panduan Instalasi & Menjalankan Lokal
 
 ### Prasyarat Sistem
-- **Node.js**: >= 20.0.0 LTS (Direkomendasikan Node.js 22 LTS)
-- **pnpm**: >= 9.0.0 (Direkomendasikan pnpm 10+)
-- **PostgreSQL**: Versi 15 atau 16
-- **Redis**: Versi 7+
+- **Node.js**: >= 20.0.0 LTS (Rekomendasi: Node.js 22 LTS)
+- **pnpm**: >= 9.0.0 (Rekomendasi: pnpm 10+)
+- **PostgreSQL**: 15 atau 16
+- **Redis**: 7+
 
 ### Langkah-Langkah
 
@@ -217,9 +219,9 @@ apiwatch/
    ```bash
    cp .env.example .env.local
    ```
-   Pastikan variabel `DATABASE_URL`, `REDIS_URL`, `AUTH_SECRET`, dan `ENCRYPTION_KEY` terisi dengan benar.
+   Pastikan variabel `DATABASE_URL`, `REDIS_URL`, `AUTH_SECRET`, dan `ENCRYPTION_KEY` terkonfigurasi.
 
-4. **Migrasi Database & Prisma Client**:
+4. **Inisialisasi Database**:
    ```bash
    pnpm prisma generate
    pnpm prisma migrate dev
@@ -229,139 +231,141 @@ apiwatch/
    ```bash
    pnpm dev
    ```
-   Aplikasi dapat diakses pada browser di [http://localhost:3000](http://localhost:3000).
+   Akses aplikasi di browser pada [http://localhost:3000](http://localhost:3000).
 
 6. **Jalankan Background Worker** *(di terminal terpisah)*:
    ```bash
    pnpm worker
    ```
-   Worker akan langsung melakukan inisialisasi jadwal antrean BullMQ dan siap memproses monitoring jobs.
 
 ---
 
 ## 🐳 Panduan Deployment Produksi (Docker Compose)
 
-APIWatch telah dilengkapi konfigurasi Docker Compose siap pakai untuk single VPS (Ubuntu LTS):
+APIWatch telah dilengkapi konfigurasi Docker Compose siap pakai untuk server Ubuntu VPS:
 
 ```bash
-# 1. Masuk ke server VPS dan clone repository
+# 1. Masuk ke VPS dan clone repository
 git clone https://github.com/your-org/apiwatch.git /opt/apiwatch
 cd /opt/apiwatch
 
-# 2. Siapkan file environment produksi
+# 2. Siapkan file konfigurasi produksi
 cp .env.production.example .env
 nano .env
 
-# 3. Generate rahasia produksi kuat
+# 3. Generate rahasia kriptografi 64-karakter hex
 openssl rand -hex 32 # untuk AUTH_SECRET
 openssl rand -hex 32 # untuk ENCRYPTION_KEY
+openssl rand -hex 24 # untuk POSTGRES_PASSWORD & REDIS_PASSWORD
 
-# 4. Bangun dan jalankan seluruh container
+# 4. Bangun dan jalankan stack produksi
 docker compose up -d --build
 
-# 5. Cek status container
+# 5. Verifikasi status container
 docker compose ps
 ```
 
-### Memeriksa Log Layanan
+---
+
+## 🧪 Automated Smoke Testing
+
+Jalankan pengujian smoke test otomatis pasca deployment:
+
 ```bash
-# Log aplikasi web
-docker compose logs -f web
+# Menggunakan Node.js runner (Multi-platform):
+node scripts/smoke-test.mjs https://apiwatch.example.com
 
-# Log background worker
-docker compose logs -f worker
-
-# Log reverse proxy Caddy (sertifikat SSL/TLS)
-docker compose logs -f proxy
+# Atau menggunakan Bash/cURL script:
+chmod +x scripts/smoke-test.sh
+./scripts/smoke-test.sh https://apiwatch.example.com
 ```
 
-### Prosedur Backup & Restore Database
-```bash
-# Melakukan backup instan
-chmod +x scripts/backup.sh scripts/restore.sh
-./scripts/backup.sh
-
-# Melakukan restore dari file backup
-./scripts/restore.sh /opt/apiwatch/backups/apiwatch_db_YYYYMMDD_HHMMSS.sql.gz
-```
-
-*Panduan lengkap sizing server, konfigurasi DNS A Record, dan rolling-update tersedia di [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md).*
+Pengujian ini memverifikasi secara end-to-end:
+- Liveness & Readiness health probe
+- Prometheus metrics exposition
+- Halaman landing, pricing, status, login, dan register
+- Robots.txt, sitemap XML, dan Open Graph social image
 
 ---
 
 ## 📡 Referensi REST API
 
-| Method | Endpoint | Deskripsi | Autentikasi |
+| Method | Endpoint | Deskripsi | Akses |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/health` | Status kesehatan sistem (DB & Redis) untuk container orchestrator | Publik |
-| `POST` | `/api/auth/register` | Mendaftarkan pengguna dan workspace baru | Publik |
-| `POST` | `/api/auth/login` | Login dan menerbitkan cookie sesi HMAC | Publik |
-| `GET` | `/api/auth/me` | Informasi profil pengguna yang sedang login | Sesi |
-| `POST` | `/api/auth/logout` | Menghapus cookie sesi | Sesi |
-| `GET` | `/api/dashboard/summary` | Metrik ringkasan dashboard (total, up, down, incident, avg latency) | Sesi |
-| `GET` | `/api/endpoints` | Daftar semua endpoint dalam workspace | Sesi |
-| `POST` | `/api/endpoints` | Membuat pemantauan endpoint baru beserta assertions | Sesi |
+| `GET` | `/api/health` | Liveness & Readiness health probe (DB & Redis) | Publik |
+| `GET` | `/api/metrics` | Telemetri Prometheus APM | Ops / Scraper |
+| `POST` | `/api/auth/register` | Pendaftaran akun dan inisialisasi trial 14 hari | Publik |
+| `POST` | `/api/auth/login` | Login dan penerbitan cookie sesi HMAC | Publik |
+| `GET` | `/api/auth/me` | Sesi dan profil pengguna aktif | Sesi |
+| `POST` | `/api/auth/logout` | Pembersihan cookie sesi | Sesi |
+| `GET` | `/api/endpoints` | Daftar endpoint (pencarian, pagination, filter) | Sesi |
+| `POST` | `/api/endpoints` | Registrasi endpoint baru dengan validasi SSRF | Sesi |
 | `GET` | `/api/endpoints/[id]` | Detail konfigurasi endpoint spesifik | Sesi |
-| `PATCH` | `/api/endpoints/[id]` | Memperbarui konfigurasi endpoint | Sesi |
-| `DELETE` | `/api/endpoints/[id]` | Menghapus endpoint dan riwayat monitoringnya | Sesi |
-| `POST` | `/api/endpoints/[id]/check`| Memicu pengecekan instan (*on-demand check*) | Sesi |
-| `GET` | `/api/endpoints/[id]/history` | Riwayat log pengecekan latensi dan status respon | Sesi |
-| `POST` | `/api/endpoints/[id]/pause`| Menghentikan sementara jadwal monitoring | Sesi |
-| `POST` | `/api/endpoints/[id]/resume` | Mengaktifkan kembali jadwal monitoring | Sesi |
-| `GET` | `/api/endpoints/[id]/docs`| OpenAPI/Swagger-like documentation untuk endpoint | Sesi |
-| `GET` | `/api/incidents` | Riwayat insiden gangguan performa & ketersediaan | Sesi |
-| `GET` | `/api/reports` | Rekapitulasi SLA ketersediaan multi-periode (24h, 7d, 30d, 90d) | Sesi |
-| `GET` | `/api/reports/export` | Download laporan performa format CSV (sanitasi CWE-1236) | Sesi |
-| `GET` | `/status` | Papan status publik ketersediaan endpoint | Publik |
+| `PATCH` | `/api/endpoints/[id]` | Pembaruan konfigurasi monitoring | Sesi |
+| `DELETE`| `/api/endpoints/[id]` | Penghapusan endpoint dan riwayat cek | Sesi |
+| `POST` | `/api/endpoints/[id]/check` | Pemicu pengecekan diagnostik instan | Sesi |
+| `POST` | `/api/endpoints/[id]/clone` | Kloning konfigurasi endpoint | Sesi |
+| `POST` | `/api/endpoints/bulk` | Tindakan massal (pause, resume, delete) | Sesi |
+| `POST` | `/api/endpoints/check-all` | Pengecekan paralel seluruh endpoint workspace | Sesi |
+| `GET` | `/api/incidents` | Riwayat dan status siklus insiden | Sesi |
+| `GET` | `/api/reports` | Ringkasan SLA ketersediaan (24h, 7d, 30d, 90d) | Sesi |
+| `GET` | `/api/reports/export` | Download laporan format CSV atau JSON | Sesi |
+| `GET` | `/api/billing/subscription` | Informasi paket, limit kuota, dan masa trial | Sesi |
+| `POST` | `/api/billing/checkout` | Permintaan checkout upgrade paket | Sesi |
+| `GET` | `/api/billing/invoices` | Riwayat faktur dan pembayaran | Sesi |
+| `POST` | `/api/billing/webhook` | Ingestion webhook event pembayaran (HMAC) | Gateway |
+
+*Spesifikasi lengkap dengan contoh payload request/response tersedia di [`docs/API_DOCUMENTATION.md`](./docs/API_DOCUMENTATION.md).*
 
 ---
 
 ## 🧪 Pengujian & Verifikasi Kualitas
 
-Kualitas kode dan keamanan telah diaudit dan diverifikasi secara berkala:
+Kualitas kode dan keandalan sistem telah diaudit secara menyeluruh:
 
 ```bash
-# Menjalankan 38 Automated Unit & Integration Tests
+# Menjalankan 134 Automated Tests (Unit, Integration, E2E, UI, RBAC)
 pnpm test
 
-# Menjalankan static type checking
+# Menjalankan verifikasi tipe TypeScript
 pnpm exec tsc --noEmit
 
-# Menjalankan linter kode
+# Menjalankan linter kode ESLint
 pnpm lint
 
-# Audit kerentanan dependensi produksi
+# Audit dependensi keamanan produksi
 pnpm audit --prod
 
-# Menguji build produksi Next.js
+# Uji kompilasi build produksi Next.js
 pnpm build
 ```
 
-### Hasil Audit Terakhir
-- **Automated Tests**: **134/134 lulus (100% pass rate)** meliputi Unit, Integration, API, E2E, UI, RBAC, dan Edge Cases.
+### Hasil Audit Terakhir:
+- **Automated Tests**: **134/134 lulus (100% pass rate)** dalam 1.41s.
 - **Audit Keamanan**: **0 kerentanan (0 vulnerabilities)** pada `pnpm audit --prod`.
 - **Static Analysis**: **0 TypeScript errors & 0 ESLint warnings**.
 - **Observability**: Prometheus metrics `/api/metrics`, deep health checks `/api/health?probe=ready`, structured JSON logger with PII redaction.
 - **SaaS Business**: Multi-tier quotas (Free, Pro, Enterprise), 14-day Pro trial, webhook billing processor.
-- **Build Output**: 42 routes terkompilasi sukses dengan Next.js standalone runner bundle.
+- **Build Output**: 43 routes terkompilasi sukses dengan Next.js standalone runner bundle.
 
 ---
 
-## 📚 Dokumentasi Lengkap
+## 📚 Direktori Dokumentasi Lengkap
 
-Untuk informasi teknis lebih mendalam, pelajari dokumen pendukung berikut:
-- 📖 [`docs/API_DOCUMENTATION.md`](./docs/API_DOCUMENTATION.md) — Spesifikasi REST API lengkap dengan payload request/response & status code.
-- 🚀 [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md) — Pre-flight checklist, matrix audit, dan post-deployment smoke tests.
-- 🗄️ [`docs/DATABASE_MIGRATION_GUIDE.md`](./docs/DATABASE_MIGRATION_GUIDE.md) — Prosedur migrasi produksi, zero-downtime evolution, dan disaster recovery runbook.
-- ⚙️ [`docs/ENVIRONMENT_CONFIGURATION.md`](./docs/ENVIRONMENT_CONFIGURATION.md) — Panduan lengkap variabel lingkungan & rahasia kriptografi.
-- 🚢 [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) — Prosedur lengkap deployment VPS produksi dengan Caddy TLS & Docker Compose.
-- 📐 [`TECHNICAL_PLAN.md`](./TECHNICAL_PLAN.md) — Cetak biru arsitektur, skema basis data, dan antrean BullMQ.
-- 🎨 [`UI_UX_GUIDE.md`](./UI_UX_GUIDE.md) — Panduan visual, tipografi, palet warna, dan aturan aksesibilitas.
-- 📢 [`RELEASE_NOTES.md`](./RELEASE_NOTES.md) — Catatan rilis resmi v2.0.0.
+Dokumentasi teknis komprehensif tersedia pada direktori [`docs/`](./docs/):
+- 📖 [`docs/API_DOCUMENTATION.md`](./docs/API_DOCUMENTATION.md) — Panduan integrasi REST API lengkap.
+- 🚀 [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md) — Pre-flight checklist & verification matrix.
+- 🗄️ [`docs/DATABASE_MIGRATION_GUIDE.md`](./docs/DATABASE_MIGRATION_GUIDE.md) — Prosedur migrasi database zero-downtime & index optimization.
+- ⚙️ [`docs/ENVIRONMENT_CONFIGURATION.md`](./docs/ENVIRONMENT_CONFIGURATION.md) — Panduan variabel lingkungan dan rahasia enkripsi.
+- 🔄 [`docs/ROLLBACK_STRATEGY.md`](./docs/ROLLBACK_STRATEGY.md) — SOP emergency rollback & disaster recovery.
+- 📊 [`docs/POST_LAUNCH_MONITORING.md`](./docs/POST_LAUNCH_MONITORING.md) — Runbook observabilitas paska rilis & alert rules.
+- 🗺️ [`docs/PRODUCT_ROADMAP.md`](./docs/PRODUCT_ROADMAP.md) — Roadmap pengembangan jangka panjang (Fase 11–16).
+- 🚢 [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) — Panduan deployment server Ubuntu dengan Caddy TLS & Docker Compose.
+- 📢 [`RELEASE_NOTES.md`](./RELEASE_NOTES.md) — Catatan rilis resmi v2.0.0 Production LTS.
 
 ---
 
 ## 📄 Lisensi
 
 Proyek ini dikembangkan secara proprietary dan privat untuk **APIWatch Platform**.  
-Seluruh hak cipta dilindungi undang-undang.
+Seluruh hak cipta dilindungi undang-undang © 2026 APIWatch Inc.

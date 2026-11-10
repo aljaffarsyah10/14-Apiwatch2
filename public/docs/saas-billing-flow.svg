@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 340" width="100%" height="100%">
+  <defs>
+    <linearGradient id="saasBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#09090b"/>
+      <stop offset="100%" stop-color="#141419"/>
+    </linearGradient>
+    <linearGradient id="cardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#18181b"/>
+      <stop offset="100%" stop-color="#111114"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#6d28d9"/>
+    </linearGradient>
+  </defs>
+
+  <style>
+    .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; fill: #f4f4f5; }
+    .subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #a1a1aa; }
+    .tier-name { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 15px; font-weight: 700; fill: #f4f4f5; }
+    .tier-price { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 22px; font-weight: 800; fill: #ffffff; }
+    .feature-item { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 11px; fill: #a1a1aa; }
+    .badge { font-family: ui-monospace, SFMono-Regular, monospace; font-size: 10px; font-weight: 600; }
+  </style>
+
+  <!-- Canvas -->
+  <rect width="960" height="340" rx="14" fill="url(#saasBg)" stroke="#27272a" stroke-width="1.5"/>
+
+  <!-- Header -->
+  <text x="32" y="38" class="title" font-size="18">APIWatch Multi-Tier SaaS Business Architecture</text>
+  <text x="32" y="58" class="subtitle">Automated quota enforcement, 14-day free Pro trial, and invoice generation</text>
+
+  <!-- 3 Plan Cards -->
+  <!-- Card 1: Free Starter -->
+  <g transform="translate(32, 85)">
+    <rect x="0" y="0" width="280" height="225" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+    <text x="20" y="32" class="tier-name">Free Starter</text>
+    <rect x="180" y="16" width="80" height="20" rx="10" fill="#27272a"/>
+    <text x="190" y="30" class="badge" fill="#a1a1aa">Forever Free</text>
+    <text x="20" y="66" class="tier-price">$0</text>
+    <text x="56" y="66" class="feature-item">/ month</text>
+
+    <line x1="20" y1="82" x2="260" y2="82" stroke="#27272a"/>
+    <text x="20" y="105" class="feature-item">✓ Up to 5 monitored endpoints</text>
+    <text x="20" y="127" class="feature-item">✓ 5-minute check intervals</text>
+    <text x="20" y="149" class="feature-item">✓ 24-hour log retention</text>
+    <text x="20" y="171" class="feature-item">✓ Email outage notifications</text>
+    <text x="20" y="193" class="feature-item">✓ Public status page (/status)</text>
+  </g>
+
+  <!-- Card 2: Pro Tier (Highlighted) -->
+  <g transform="translate(340, 85)">
+    <rect x="0" y="0" width="280" height="225" rx="10" fill="url(#cardGrad)" stroke="#3b82f6" stroke-width="1.5"/>
+    <rect x="20" y="-10" width="140" height="20" rx="10" fill="url(#blueGrad)"/>
+    <text x="32" y="4" class="badge" fill="#ffffff">★ 14-DAY FREE TRIAL</text>
+    
+    <text x="20" y="32" class="tier-name">Pro Tier</text>
+    <text x="20" y="66" class="tier-price" fill="#3b82f6">$29</text>
+    <text x="70" y="66" class="feature-item">/ month (or $290/yr)</text>
+
+    <line x1="20" y1="82" x2="260" y2="82" stroke="#27272a"/>
+    <text x="20" y="105" class="feature-item" fill="#f4f4f5">✓ Up to 25 monitored endpoints</text>
+    <text x="20" y="127" class="feature-item" fill="#f4f4f5">✓ 30-second fast check intervals</text>
+    <text x="20" y="149" class="feature-item" fill="#f4f4f5">✓ 30-day telemetry retention</text>
+    <text x="20" y="171" class="feature-item" fill="#f4f4f5">✓ Multi-Channel Alerts (Webhook/Slack)</text>
+    <text x="20" y="193" class="feature-item" fill="#f4f4f5">✓ SLA Reports &amp; CSV/JSON Exports</text>
+    <text x="20" y="212" class="feature-item" fill="#f4f4f5">✓ Downloadable PDF/HTML Invoices</text>
+  </g>
+
+  <!-- Card 3: Enterprise Tier -->
+  <g transform="translate(648, 85)">
+    <rect x="0" y="0" width="280" height="225" rx="10" fill="url(#cardGrad)" stroke="#27272a"/>
+    <text x="20" y="32" class="tier-name">Enterprise</text>
+    <rect x="180" y="16" width="80" height="20" rx="10" fill="rgba(139, 92, 246, 0.2)"/>
+    <text x="190" y="30" class="badge" fill="#c084fc">High Scale</text>
+    <text x="20" y="66" class="tier-price">$199</text>
+    <text x="80" y="66" class="feature-item">/ month</text>
+
+    <line x1="20" y1="82" x2="260" y2="82" stroke="#27272a"/>
+    <text x="20" y="105" class="feature-item">✓ Unlimited endpoints</text>
+    <text x="20" y="127" class="feature-item">✓ 10-second check intervals</text>
+    <text x="20" y="149" class="feature-item">✓ 1-year historical telemetry</text>
+    <text x="20" y="171" class="feature-item">✓ Multi-region consensus probes</text>
+    <text x="20" y="193" class="feature-item">✓ Custom domain status pages</text>
+    <text x="20" y="212" class="feature-item">✓ 99.99% SLA guarantee &amp; SSO</text>
+  </g>
+</svg>
