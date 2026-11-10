@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Search, Pause, Play, Trash2, Edit, Radio, RefreshCw } from "lucide-react";
+import { Plus, Search, Pause, Play, Trash2, Edit, Radio, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/shared/page-header";
@@ -20,6 +20,7 @@ import {
   pauseEndpoint,
   resumeEndpoint,
   deleteEndpoint,
+  checkAllEndpoints,
   EndpointItem,
 } from "@/lib/api/endpoints";
 
@@ -31,6 +32,21 @@ export default function EndpointsPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [refreshIndex, setRefreshIndex] = React.useState(0);
+  const [isCheckingAll, setIsCheckingAll] = React.useState(false);
+
+  const handleCheckAll = async () => {
+    try {
+      setIsCheckingAll(true);
+      toast.info("Triggering real-time health checks on all endpoints...");
+      const res = await checkAllEndpoints();
+      toast.success(res.message);
+      handleRefresh();
+    } catch {
+      toast.error("Failed to execute batch checks");
+    } finally {
+      setIsCheckingAll(false);
+    }
+  };
 
   React.useEffect(() => {
     let ignore = false;
@@ -135,9 +151,22 @@ export default function EndpointsPage() {
         title="Endpoints"
         description="Manage your HTTP/HTTPS endpoints, intervals, and health assertions."
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={handleCheckAll}
+            disabled={isCheckingAll}
+            className="gap-2"
+          >
+            {isCheckingAll ? (
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            ) : (
+              <Play className="h-4 w-4 text-success" />
+            )}
+            Check All Now
+          </Button>
           <Button variant="outline" onClick={handleRefresh}>
-          <RefreshCw />
+            <RefreshCw />
             Refresh
           </Button>
           <Button render={<Link href="/endpoints/new" />} className="gap-2">

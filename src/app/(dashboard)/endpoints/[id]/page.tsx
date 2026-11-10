@@ -19,6 +19,8 @@ import {
   Copy,
   Save,
   BookOpen,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -203,6 +205,17 @@ function EndpointDetailContent() {
   const successfulChecks = history.filter((h) => h.isSuccess || h.status === "SUCCESS").length;
   const uptimeRatio = totalChecks > 0 ? ((successfulChecks / totalChecks) * 100).toFixed(1) : "100";
 
+  // Calculate percentiles
+  const sortedLatencies = history
+    .map((h) => h.responseTimeMs)
+    .filter((lat): lat is number => typeof lat === "number" && lat > 0)
+    .sort((a, b) => a - b);
+
+  const p50 = sortedLatencies.length > 0 ? Math.round(sortedLatencies[Math.floor(sortedLatencies.length * 0.5)]) : null;
+  const p90 = sortedLatencies.length > 0 ? Math.round(sortedLatencies[Math.floor(sortedLatencies.length * 0.9)]) : null;
+  const p99 = sortedLatencies.length > 0 ? Math.round(sortedLatencies[Math.floor(sortedLatencies.length * 0.99)]) : null;
+  const isHttps = endpoint?.url.startsWith("https://") ?? false;
+
   const chartData = history.slice(0, 24).reverse().map((h) => ({
     time: new Date(h.checkedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
     latency: h.responseTimeMs || 0,
@@ -297,7 +310,7 @@ function EndpointDetailContent() {
 
         {/* Tab 1: Overview */}
         <TabsContent value="overview" className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card>
               <CardHeader className="py-3">
                 <CardDescription>Uptime Availability</CardDescription>
@@ -306,18 +319,39 @@ function EndpointDetailContent() {
                 </CardTitle>
               </CardHeader>
             </Card>
+
             <Card>
               <CardHeader className="py-3">
-                <CardDescription>Latest Response Time</CardDescription>
-                <CardTitle className="text-2xl font-bold font-mono">
-                  {history[0]?.responseTimeMs ? `${Math.round(history[0].responseTimeMs)} ms` : "—"}
+                <CardDescription>Latency Percentiles</CardDescription>
+                <CardTitle className="text-sm font-mono font-medium flex items-center justify-between pt-1">
+                  <span>p50: <strong className="text-foreground">{p50 !== null ? `${p50}ms` : "—"}</strong></span>
+                  <span>p90: <strong className="text-foreground">{p90 !== null ? `${p90}ms` : "—"}</strong></span>
+                  <span>p99: <strong className="text-foreground">{p99 !== null ? `${p99}ms` : "—"}</strong></span>
                 </CardTitle>
               </CardHeader>
             </Card>
+
             <Card>
               <CardHeader className="py-3">
-                <CardDescription>SSRF Protection</CardDescription>
-                <CardTitle className="text-sm font-semibold flex items-center gap-1.5 text-primary">
+                <CardDescription>Transport Security</CardDescription>
+                <CardTitle className="text-sm font-semibold flex items-center gap-1.5 pt-1">
+                  {isHttps ? (
+                    <span className="text-success flex items-center gap-1.5">
+                      <Lock className="h-4 w-4" /> HTTPS (TLS Encrypted)
+                    </span>
+                  ) : (
+                    <span className="text-warning flex items-center gap-1.5">
+                      <Unlock className="h-4 w-4" /> HTTP (Unencrypted)
+                    </span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+            </Card>
+
+            <Card>
+              <CardHeader className="py-3">
+                <CardDescription>SSRF Defense</CardDescription>
+                <CardTitle className="text-sm font-semibold flex items-center gap-1.5 text-primary pt-1">
                   <ShieldCheck className="h-4 w-4" /> Multi-layer IP Pinning
                 </CardTitle>
               </CardHeader>

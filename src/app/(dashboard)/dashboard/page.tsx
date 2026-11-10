@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Radio, CheckCircle, AlertTriangle, Clock, ArrowUpRight, Activity, RefreshCw } from "lucide-react";
+import { Plus, Radio, CheckCircle, AlertTriangle, Clock, ArrowUpRight, Activity, RefreshCw, Play, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -15,7 +15,8 @@ import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";
 import { getDashboardSummary, DashboardSummaryData } from "@/lib/api/dashboard";
-import { getEndpoints, EndpointItem } from "@/lib/api/endpoints";
+import { getEndpoints, EndpointItem, checkAllEndpoints } from "@/lib/api/endpoints";
+import { toast } from "sonner";
 
 export default function DashboardOverviewPage() {
   const [summary, setSummary] = React.useState<DashboardSummaryData | null>(null);
@@ -23,6 +24,21 @@ export default function DashboardOverviewPage() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [refreshIndex, setRefreshIndex] = React.useState(0);
+  const [isCheckingAll, setIsCheckingAll] = React.useState(false);
+
+  const handleCheckAll = async () => {
+    try {
+      setIsCheckingAll(true);
+      toast.info("Triggering real-time health checks on all endpoints...");
+      const res = await checkAllEndpoints();
+      toast.success(res.message);
+      handleRefresh();
+    } catch {
+      toast.error("Failed to execute batch checks");
+    } finally {
+      setIsCheckingAll(false);
+    }
+  };
 
   React.useEffect(() => {
     let ignore = false;
@@ -102,7 +118,20 @@ export default function DashboardOverviewPage() {
         title="Dashboard Overview"
         description="Real-time uptime metrics, health status, and latency across your workspaces."
       >
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button
+            variant="outline"
+            onClick={handleCheckAll}
+            disabled={isCheckingAll}
+            className="gap-2"
+          >
+            {isCheckingAll ? (
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+            ) : (
+              <Play className="h-4 w-4 text-success" />
+            )}
+            Check All Now
+          </Button>
           <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw />
             Refresh

@@ -96,6 +96,17 @@ export async function triggerManualCheck(id: string): Promise<unknown> {
   });
 }
 
+export async function checkAllEndpoints(): Promise<{
+  success: boolean;
+  message: string;
+  totalEndpoints?: number;
+  checkedCount?: number;
+}> {
+  return apiFetch("/api/endpoints/check-all", {
+    method: "POST",
+  });
+}
+
 export async function updateEndpointDocs(
   id: string,
   data: {
