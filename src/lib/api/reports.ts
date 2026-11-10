@@ -16,12 +16,14 @@ export interface EndpointReportItem {
 }
 
 export interface ReportsData {
+  period?: string;
   overallUptime: number;
   overallAvgLatency: number;
   totalEndpoints: number;
   endpoints: EndpointReportItem[];
 }
 
-export async function getReportsData(): Promise<ReportsData> {
-  return apiFetch<ReportsData>("/api/reports");
+export async function getReportsData(period?: "24h" | "7d" | "30d"): Promise<ReportsData> {
+  const query = period ? `?period=${period}` : "";
+  return apiFetch<ReportsData>(`/api/reports${query}`);
 }

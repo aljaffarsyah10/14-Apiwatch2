@@ -41,6 +41,7 @@ import {
   deleteEndpoint,
   triggerManualCheck,
   updateEndpointDocs,
+  cloneEndpoint,
   EndpointItem,
 } from "@/lib/api/endpoints";
 import { getEndpointHistory, CheckHistoryItem } from "@/lib/api/history";
@@ -60,6 +61,16 @@ function EndpointDetailContent() {
   const [selectedCheck, setSelectedCheck] = React.useState<CheckHistoryItem | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [refreshIndex, setRefreshIndex] = React.useState(0);
+  const [autoRefreshEnabled, setAutoRefreshEnabled] = React.useState(false);
+
+  // Auto-refresh interval (30s)
+  React.useEffect(() => {
+    if (!autoRefreshEnabled) return;
+    const interval = setInterval(() => {
+      setRefreshIndex((prev) => prev + 1);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [autoRefreshEnabled]);
 
   // Documentation state
   const [docDescription, setDocDescription] = React.useState("");
@@ -175,6 +186,24 @@ function EndpointDetailContent() {
     toast.success("cURL command copied to clipboard!");
   };
 
+  const handleCopyUrl = () => {
+    if (!endpoint) return;
+    navigator.clipboard.writeText(endpoint.url);
+    toast.success("Endpoint URL copied to clipboard!");
+  };
+
+  const handleClone = async () => {
+    if (!endpoint) return;
+    try {
+      toast.info(`Cloning endpoint "${endpoint.name}"...`);
+      const res = await cloneEndpoint(endpoint.id);
+      toast.success(res.message);
+      router.push(`/endpoints/${res.data.id}`);
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Failed to clone endpoint");
+    }
+  };
+
   if (isLoading && !endpoint) {
     return (
       <div className="space-y-6">
@@ -256,6 +285,57 @@ function EndpointDetailContent() {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* Auto-refresh pill */}
+          <button
+            onClick={() => setAutoRefreshEnabled(!autoRefreshEnabled)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-semibold cursor-pointer transition-colors ${
+              autoRefreshEnabled
+                ? "bg-primary/10 border-primary/30 text-primary shadow-xs"
+                : "border-border/80 text-muted-foreground hover:bg-muted/60"
+            }`}
+            title="Auto-refresh checks every 30 seconds"
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                autoRefreshEnabled ? "bg-primary animate-pulse" : "bg-muted-foreground/50"
+              }`}
+            />
+            <span>Auto-refresh (30s)</span>
+          </button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyUrl}
+            className="gap-1.5 text-xs border-border/80"
+            title="Copy URL"
+          >
+            <Copy className="h-3.5 w-3.5" />
+            Copy URL
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyCurl}
+            className="gap-1.5 text-xs border-border/80"
+            title="Copy cURL Probe Command"
+          >
+            <Copy className="h-3.5 w-3.5" />
+            cURL
+          </Button>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClone}
+            className="gap-1.5 text-xs border-border/80"
+            title="Clone / Duplicate Endpoint"
+          >
+            <Copy className="h-3.5 w-3.5" />
+            Clone
+          </Button>
+
           <Button
             variant="outline"
             onClick={handleTriggerCheck}

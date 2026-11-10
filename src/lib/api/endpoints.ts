@@ -120,3 +120,19 @@ export async function updateEndpointDocs(
     body: JSON.stringify(data),
   });
 }
+
+export async function bulkEndpointAction(
+  action: "pause" | "resume" | "check" | "delete",
+  ids: string[]
+): Promise<{ success: boolean; message: string; affectedCount: number }> {
+  return apiFetch("/api/endpoints/bulk", {
+    method: "POST",
+    body: JSON.stringify({ action, ids }),
+  });
+}
+
+export async function cloneEndpoint(id: string): Promise<{ success: boolean; message: string; data: EndpointItem }> {
+  return apiFetch(`/api/endpoints/${id}/clone`, {
+    method: "POST",
+  });
+}
