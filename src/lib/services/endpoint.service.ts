@@ -3,6 +3,7 @@ import { EndpointStatus, HttpMethod, Prisma } from "@prisma/client";
 import { scheduleEndpointCheck, removeEndpointSchedule, triggerImmediateCheck } from "../queue/scheduler";
 import { validateSafeUrl } from "../monitoring/ssrf-guard";
 import { encryptCredential } from "../crypto";
+import { UsageLimitsService } from "./usage-limits.service";
 
 export interface CreateEndpointInput {
   name: string;
@@ -99,7 +100,11 @@ export class EndpointService {
    * Create an endpoint and register its monitoring schedule.
    */
   static async createEndpoint(input: CreateEndpointInput, workspaceId: string) {
-    // 1. SSRF pre-check
+    // 1. Quota & usage bounds enforcement
+    await UsageLimitsService.assertCanCreateEndpoint(workspaceId);
+    await UsageLimitsService.assertValidInterval(workspaceId, input.intervalSeconds);
+
+    // 2. SSRF pre-check
     await validateSafeUrl(input.url);
 
     // Convert request headers array to encrypted JSON string if present
@@ -161,6 +166,10 @@ export class EndpointService {
     const existing = await this.getEndpointById(id, workspaceId);
     if (!existing) {
       throw new Error("Endpoint not found");
+    }
+
+    if (input.intervalSeconds !== undefined) {
+      await UsageLimitsService.assertValidInterval(workspaceId || existing.workspaceId, input.intervalSeconds);
     }
 
     if (input.url && input.url !== existing.url) {

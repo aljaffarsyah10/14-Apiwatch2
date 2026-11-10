@@ -3,6 +3,7 @@ import { EndpointService } from "@/lib/services/endpoint.service";
 import { getSessionOrDefault } from "@/lib/auth/session";
 import { endpointFormSchema } from "@/lib/validations/endpoint.schema";
 import { EndpointStatus } from "@prisma/client";
+import { QuotaExceededError } from "@/lib/services/usage-limits.service";
 
 export async function GET(request: NextRequest) {
   try {
@@ -70,6 +71,21 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("[API POST /api/endpoints]", error);
+    if (error instanceof QuotaExceededError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: error.message,
+          code: error.code,
+          limit: error.limitValue,
+          current: error.currentValue,
+          upgradeRequired: true,
+          suggestedTier: error.suggestedTier,
+        },
+        { status: 402 }
+      );
+    }
+
     const message = error instanceof Error ? error.message : "Failed to create endpoint";
     const status = message.includes("SSRF") || message.includes("prohibited") ? 400 : 500;
 

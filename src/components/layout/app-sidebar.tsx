@@ -12,6 +12,7 @@ import {
   PlusCircle,
   ExternalLink,
   LogOut,
+  CreditCard,
 } from "lucide-react";
 import {
   Sidebar,
@@ -50,6 +51,11 @@ const mainNavItems = [
     title: "Reports",
     url: "/reports",
     icon: FileText,
+  },
+  {
+    title: "Plans & Billing",
+    url: "/settings?tab=billing",
+    icon: CreditCard,
   },
   {
     title: "Settings",

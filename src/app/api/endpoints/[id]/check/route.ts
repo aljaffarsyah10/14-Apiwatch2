@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { MonitoringService } from "@/lib/services/monitoring.service";
 import { getSessionOrDefault } from "@/lib/auth/session";
+import { UsageLimitsService, QuotaExceededError } from "@/lib/services/usage-limits.service";
 import db from "@/lib/db";
 
 interface RouteContext {
@@ -24,6 +25,8 @@ export async function POST(_request: NextRequest, context: RouteContext) {
       );
     }
 
+    await UsageLimitsService.assertCanTriggerManualCheck(session.workspaceId);
+
     const checkRecord = await MonitoringService.executeCheck(id, true);
     if (!checkRecord) {
       return NextResponse.json(
@@ -38,6 +41,9 @@ export async function POST(_request: NextRequest, context: RouteContext) {
     });
   } catch (error) {
     console.error("[API POST /api/endpoints/:id/check]", error);
+    if (error instanceof QuotaExceededError) {
+      return NextResponse.json({ success: false, error: error.message, code: error.code }, { status: 429 });
+    }
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Internal error" },
       { status: 500 }

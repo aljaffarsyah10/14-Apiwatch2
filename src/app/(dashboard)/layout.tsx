@@ -2,6 +2,7 @@ import * as React from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
+import { OnboardingProvider } from "@/components/onboarding/onboarding-provider";
 
 export default function DashboardLayout({
   children,
@@ -18,9 +19,11 @@ export default function DashboardLayout({
           <AppHeader />
         </React.Suspense>
         <main className="flex-1 w-full max-w-[1200px] mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:px-10 space-y-8">
-          <React.Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Loading view...</div>}>
-            {children}
-          </React.Suspense>
+          <OnboardingProvider>
+            <React.Suspense fallback={<div className="p-8 text-center text-sm text-muted-foreground">Loading view...</div>}>
+              {children}
+            </React.Suspense>
+          </OnboardingProvider>
         </main>
       </SidebarInset>
     </SidebarProvider>

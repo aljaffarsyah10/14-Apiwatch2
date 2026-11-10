@@ -41,6 +41,31 @@ enum NotificationDeliveryStatus {
   FAILED
 }
 
+enum SubscriptionTier {
+  FREE
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum BillingCycle {
+  MONTHLY
+  ANNUAL
+}
+
+enum InvoiceStatus {
+  PAID
+  OPEN
+  FAILED
+}
+
 model User {
   id            String      @id @default(uuid())
   email         String      @unique
@@ -95,6 +120,9 @@ model Workspace {
   owner                User                  @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   endpoints            Endpoint[]
   notificationSettings NotificationSetting[]
+  subscription         Subscription?
+  invoices             Invoice[]
+  onboardingCompleted  Boolean               @default(false)
   createdAt            DateTime              @default(now())
   updatedAt            DateTime              @updatedAt
 
@@ -206,4 +234,43 @@ model EndpointDocumentation {
   requestExample  String?  @db.Text
   responseExample String?  @db.Text
   updatedAt       DateTime @updatedAt
+}
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  workspaceId          String             @unique
+  workspace            Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  tier                 SubscriptionTier   @default(FREE)
+  status               SubscriptionStatus @default(TRIALING)
+  billingCycle         BillingCycle       @default(MONTHLY)
+  trialEndsAt          DateTime?
+  currentPeriodStart   DateTime           @default(now())
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@index([workspaceId])
+  @@index([status])
+}
+
+model Invoice {
+  id              String        @id @default(uuid())
+  workspaceId     String
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  invoiceNumber   String        @unique
+  amountPaid      Int           // in cents, e.g. 1900 = $19.00
+  currency        String        @default("USD")
+  status          InvoiceStatus @default(PAID)
+  billingReason   String?       // subscription_create, subscription_cycle, etc.
+  periodStart     DateTime
+  periodEnd       DateTime
+  hostedUrl       String?
+  pdfUrl          String?
+  createdAt       DateTime      @default(now())
+
+  @@index([workspaceId])
+  @@index([invoiceNumber])
 }
