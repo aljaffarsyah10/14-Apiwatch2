@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { loginUser } from "@/lib/api/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,17 +36,17 @@ export default function LoginPage() {
   };
 
   return (
-    <Card className="border border-border shadow-lg">
-      <CardHeader className="space-y-1">
+    <Card className="border border-border/80 shadow-xl bg-card/95 backdrop-blur-md">
+      <CardHeader className="space-y-1.5 pb-4">
         <CardTitle className="text-2xl font-bold tracking-tight">Sign In</CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Enter your credentials to access your APIWatch workspace.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email address</Label>
+            <Label htmlFor="email" className="text-xs font-semibold">Email address</Label>
             <Input
               id="email"
               type="email"
@@ -55,12 +55,13 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
               required
+              className="bg-background/60"
             />
           </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label htmlFor="password">Password</Label>
-              <Link href="/login" className="text-sm font-medium text-primary hover:underline">
+              <Label htmlFor="password" className="text-xs font-semibold">Password</Label>
+              <Link href="/login" className="text-xs font-medium text-primary hover:underline">
                 Forgot password?
               </Link>
             </div>
@@ -72,24 +73,27 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
               required
+              className="bg-background/60"
             />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+        <CardFooter className="flex flex-col gap-4 pt-2">
+          <Button type="submit" className="w-full gap-2 shadow-xs shadow-primary/20" disabled={isLoading}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Signing in...
               </>
             ) : (
-              "Sign In to Dashboard"
+              <>
+                Sign In to Dashboard <ArrowRight className="h-4 w-4" />
+              </>
             )}
           </Button>
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-xs text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="font-semibold text-primary hover:underline">
-              Register now
+              Create an account
             </Link>
           </div>
         </CardFooter>

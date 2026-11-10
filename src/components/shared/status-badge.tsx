@@ -12,22 +12,23 @@ interface StatusBadgeProps {
 
 const STATUS_STYLES: Record<
   EndpointStatusType,
-  { label: string; badge: string; dot: string }
+  { label: string; badge: string; dot: string; pulse?: boolean }
 > = {
   UP: {
     label: "Operational",
-    badge: "bg-success/10 text-success border-success/20",
-    dot: "bg-success",
+    badge: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
+    dot: "bg-emerald-500",
   },
   DOWN: {
     label: "Down",
-    badge: "bg-destructive/10 text-destructive border-destructive/25",
-    dot: "bg-destructive animate-pulse",
+    badge: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30",
+    dot: "bg-rose-500",
+    pulse: true,
   },
   PAUSED: {
     label: "Paused",
-    badge: "bg-warning/10 text-warning border-warning/20",
-    dot: "bg-warning",
+    badge: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25",
+    dot: "bg-amber-500",
   },
   PENDING: {
     label: "Pending",
@@ -42,10 +43,19 @@ export function StatusBadge({ status, className, showIcon = true }: StatusBadgeP
   return (
     <Badge
       variant="outline"
-      className={cn("inline-flex items-center gap-1.5 font-semibold", style.badge, className)}
+      className={cn(
+        "inline-flex items-center gap-1.5 px-2.5 py-0.5 font-semibold text-xs rounded-full shadow-2xs tracking-normal",
+        style.badge,
+        className
+      )}
     >
       {showIcon && (
-        <span aria-hidden className={cn("h-1.5 w-1.5 rounded-full", style.dot)} />
+        <span className="relative flex h-2 w-2">
+          {style.pulse && (
+            <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-75", style.dot)} />
+          )}
+          <span className={cn("relative inline-flex rounded-full h-2 w-2", style.dot)} />
+        </span>
       )}
       <span>{style.label}</span>
     </Badge>

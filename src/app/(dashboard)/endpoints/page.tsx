@@ -2,7 +2,19 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Search, Pause, Play, Trash2, Edit, Radio, RefreshCw, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Pause,
+  Play,
+  Trash2,
+  Edit,
+  Radio,
+  RefreshCw,
+  Loader2,
+  ShieldCheck,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/shared/page-header";
@@ -14,6 +26,7 @@ import { ErrorState } from "@/components/shared/error-state";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   getEndpoints,
@@ -23,6 +36,37 @@ import {
   checkAllEndpoints,
   EndpointItem,
 } from "@/lib/api/endpoints";
+
+function getMethodBadgeClass(method: string) {
+  switch (method.toUpperCase()) {
+    case "GET":
+      return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25";
+    case "POST":
+      return "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25";
+    case "PUT":
+      return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25";
+    case "PATCH":
+      return "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25";
+    case "DELETE":
+      return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25";
+    default:
+      return "bg-muted text-muted-foreground border-border";
+  }
+}
+
+function getLatencyBadge(latencyMs: number | null | undefined) {
+  if (latencyMs === undefined || latencyMs === null) {
+    return <span className="text-muted-foreground text-xs">Pending</span>;
+  }
+  const rounded = Math.round(latencyMs);
+  let colorClass = "text-emerald-600 dark:text-emerald-400";
+  if (rounded > 300) {
+    colorClass = "text-amber-600 dark:text-amber-400";
+  } else if (rounded > 150) {
+    colorClass = "text-sky-600 dark:text-sky-400";
+  }
+  return <span className={`font-mono font-semibold text-xs tabular-nums ${colorClass}`}>{rounded} ms</span>;
+}
 
 export default function EndpointsPage() {
   const [endpoints, setEndpoints] = React.useState<EndpointItem[]>([]);
@@ -97,7 +141,6 @@ export default function EndpointsPage() {
         await pauseEndpoint(ep.id);
         toast.success(`Endpoint "${ep.name}" has been paused.`);
       }
-      // Re-fetch to reflect updated status
       handleRefresh();
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "Failed to change endpoint status");
@@ -151,53 +194,73 @@ export default function EndpointsPage() {
         title="Endpoints"
         description="Manage your HTTP/HTTPS endpoints, intervals, and health assertions."
       >
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <Button
             variant="outline"
             onClick={handleCheckAll}
             disabled={isCheckingAll}
-            className="gap-2"
+            className="gap-2 border-border/80 hover:bg-muted/60"
           >
             {isCheckingAll ? (
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
             ) : (
-              <Play className="h-4 w-4 text-success" />
+              <Play className="h-4 w-4 text-emerald-500 fill-emerald-500/20" />
             )}
-            Check All Now
+            <span>{isCheckingAll ? "Executing..." : "Check All Now"}</span>
           </Button>
-          <Button variant="outline" onClick={handleRefresh}>
-            <RefreshCw />
+
+          <Button variant="outline" onClick={handleRefresh} className="gap-1.5 border-border/80 hover:bg-muted/60">
+            <RefreshCw className="h-4 w-4" />
             Refresh
           </Button>
-          <Button render={<Link href="/endpoints/new" />} className="gap-2">
+
+          <Button render={<Link href="/endpoints/new" />} className="gap-2 shadow-xs shadow-primary/20">
             <Plus className="h-4 w-4" />
             Add Endpoint
           </Button>
         </div>
       </PageHeader>
 
+      {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         <Tabs value={filter} onValueChange={setFilter} className="w-auto">
-          <TabsList className="bg-muted/60">
-            <TabsTrigger value="ALL">All ({counts.all})</TabsTrigger>
-            <TabsTrigger value="UP">UP ({counts.up})</TabsTrigger>
-            <TabsTrigger value="DOWN">DOWN ({counts.down})</TabsTrigger>
-            <TabsTrigger value="PAUSED">PAUSED ({counts.paused})</TabsTrigger>
+          <TabsList className="bg-muted/50 p-1 border border-border/60">
+            <TabsTrigger value="ALL" className="gap-1.5 text-xs font-semibold">
+              All <Badge variant="secondary" className="px-1.5 py-0 text-[10px] rounded-full">{counts.all}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="UP" className="gap-1.5 text-xs font-semibold">
+              UP <Badge variant="secondary" className="px-1.5 py-0 text-[10px] rounded-full text-emerald-600 dark:text-emerald-400">{counts.up}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="DOWN" className="gap-1.5 text-xs font-semibold">
+              DOWN <Badge variant="secondary" className="px-1.5 py-0 text-[10px] rounded-full text-rose-600 dark:text-rose-400">{counts.down}</Badge>
+            </TabsTrigger>
+            <TabsTrigger value="PAUSED" className="gap-1.5 text-xs font-semibold">
+              PAUSED <Badge variant="secondary" className="px-1.5 py-0 text-[10px] rounded-full text-amber-600 dark:text-amber-400">{counts.paused}</Badge>
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground pointer-events-none" />
           <Input
-            placeholder="Search endpoint name or URL..."
+            placeholder="Filter endpoint name or URL..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9.5 text-sm"
+            className="pl-9.5 pr-8 text-xs sm:text-sm bg-card/60"
           />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-2.5 top-2.5 p-0.5 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </div>
 
-      <Card>
+      {/* Endpoints Table Card */}
+      <Card className="border border-border/80 shadow-xs overflow-hidden">
         <CardContent className="p-0">
           {filteredEndpoints.length === 0 ? (
             <div className="py-12">
@@ -228,8 +291,8 @@ export default function EndpointsPage() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Endpoint</TableHead>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[35%]">Endpoint</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden md:table-cell">Method</TableHead>
                   <TableHead className="hidden sm:table-cell">Interval</TableHead>
@@ -241,11 +304,16 @@ export default function EndpointsPage() {
                 {filteredEndpoints.map((ep) => {
                   const latestCheck = ep.checks?.[0];
                   return (
-                    <TableRow key={ep.id}>
+                    <TableRow key={ep.id} className="transition-colors hover:bg-muted/40">
                       <TableCell>
                         <Link href={`/endpoints/${ep.id}`} className="group flex flex-col gap-0.5">
-                          <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{ep.name}</span>
-                          <span className="font-mono text-[0.8125rem] text-muted-foreground truncate max-w-xs">
+                          <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors flex items-center gap-1.5">
+                            {ep.name}
+                            {ep.url.startsWith("https://") && (
+                              <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-primary transition-colors" />
+                            )}
+                          </span>
+                          <span className="font-mono text-xs text-muted-foreground truncate max-w-sm">
                             {ep.url}
                           </span>
                         </Link>
@@ -253,16 +321,16 @@ export default function EndpointsPage() {
                       <TableCell>
                         <StatusBadge status={ep.status} />
                       </TableCell>
-                      <TableCell className="hidden md:table-cell font-mono text-[0.8125rem] font-semibold">
-                        {ep.method}
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant="outline" className={`font-mono text-[11px] font-semibold px-2 py-0.5 ${getMethodBadgeClass(ep.method)}`}>
+                          {ep.method}
+                        </Badge>
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell tabular-nums text-muted-foreground">
+                      <TableCell className="hidden sm:table-cell tabular-nums text-xs text-muted-foreground">
                         {ep.intervalSeconds < 60 ? `${ep.intervalSeconds}s` : `${Math.round(ep.intervalSeconds / 60)}m`}
                       </TableCell>
-                      <TableCell className="tabular-nums">
-                        {latestCheck?.responseTimeMs !== undefined && latestCheck.responseTimeMs !== null
-                          ? `${Math.round(latestCheck.responseTimeMs)} ms`
-                          : "Pending"}
+                      <TableCell>
+                        {getLatencyBadge(latestCheck?.responseTimeMs)}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
@@ -273,9 +341,9 @@ export default function EndpointsPage() {
                             onClick={() => handleTogglePause(ep)}
                           >
                             {ep.status === "PAUSED" ? (
-                              <Play className="h-4 w-4 text-success" />
+                              <Play className="h-4 w-4 text-emerald-500 fill-emerald-500/20" />
                             ) : (
-                              <Pause className="h-4 w-4 text-warning" />
+                              <Pause className="h-4 w-4 text-amber-500 fill-amber-500/20" />
                             )}
                           </Button>
                           <Button

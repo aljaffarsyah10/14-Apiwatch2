@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { registerUser } from "@/lib/api/auth";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowRight } from "lucide-react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -42,28 +42,29 @@ export default function RegisterPage() {
   };
 
   return (
-    <Card className="border border-border shadow-lg">
-      <CardHeader className="space-y-1">
+    <Card className="border border-border/80 shadow-xl bg-card/95 backdrop-blur-md">
+      <CardHeader className="space-y-1.5 pb-4">
         <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
-        <CardDescription>
+        <CardDescription className="text-sm">
           Start monitoring your APIs with real-time alerting and uptime reports.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
+            <Label htmlFor="name" className="text-xs font-semibold">Full Name</Label>
             <Input
               id="name"
               type="text"
-              placeholder="John Doe"
+              placeholder="Alex Rivers"
               value={name}
               onChange={(e) => setName(e.target.value)}
               disabled={isLoading}
+              className="bg-background/60"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="email">Work Email</Label>
+            <Label htmlFor="email" className="text-xs font-semibold">Work Email</Label>
             <Input
               id="email"
               type="email"
@@ -72,10 +73,11 @@ export default function RegisterPage() {
               onChange={(e) => setEmail(e.target.value)}
               disabled={isLoading}
               required
+              className="bg-background/60"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password" className="text-xs font-semibold">Password</Label>
             <Input
               id="password"
               type="password"
@@ -84,24 +86,27 @@ export default function RegisterPage() {
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
               required
+              className="bg-background/60"
             />
           </div>
         </CardContent>
-        <CardFooter className="flex flex-col gap-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
+        <CardFooter className="flex flex-col gap-4 pt-2">
+          <Button type="submit" className="w-full gap-2 shadow-xs shadow-primary/20" disabled={isLoading}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="h-4 w-4 animate-spin" />
                 Creating account...
               </>
             ) : (
-              "Create Free Account"
+              <>
+                Create Free Account <ArrowRight className="h-4 w-4" />
+              </>
             )}
           </Button>
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-xs text-muted-foreground">
             Already have an account?{" "}
             <Link href="/login" className="font-semibold text-primary hover:underline">
-              Sign In
+              Sign in
             </Link>
           </div>
         </CardFooter>

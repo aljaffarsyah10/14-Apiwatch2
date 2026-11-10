@@ -2,7 +2,19 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, Radio, CheckCircle, AlertTriangle, Clock, ArrowUpRight, Activity, RefreshCw, Play, Loader2 } from "lucide-react";
+import {
+  Plus,
+  Radio,
+  CheckCircle,
+  AlertTriangle,
+  Clock,
+  ArrowUpRight,
+  Activity,
+  RefreshCw,
+  Play,
+  Loader2,
+  ShieldCheck,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { StatCard } from "@/components/shared/stat-card";
@@ -17,6 +29,37 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { getDashboardSummary, DashboardSummaryData } from "@/lib/api/dashboard";
 import { getEndpoints, EndpointItem, checkAllEndpoints } from "@/lib/api/endpoints";
 import { toast } from "sonner";
+
+function getMethodBadgeClass(method: string) {
+  switch (method.toUpperCase()) {
+    case "GET":
+      return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25";
+    case "POST":
+      return "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/25";
+    case "PUT":
+      return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/25";
+    case "PATCH":
+      return "bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/25";
+    case "DELETE":
+      return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/25";
+    default:
+      return "bg-muted text-muted-foreground border-border";
+  }
+}
+
+function getLatencyBadge(latencyMs: number | null | undefined) {
+  if (latencyMs === undefined || latencyMs === null) {
+    return <span className="text-muted-foreground text-xs">Pending</span>;
+  }
+  const rounded = Math.round(latencyMs);
+  let colorClass = "text-emerald-600 dark:text-emerald-400";
+  if (rounded > 300) {
+    colorClass = "text-amber-600 dark:text-amber-400";
+  } else if (rounded > 150) {
+    colorClass = "text-sky-600 dark:text-sky-400";
+  }
+  return <span className={`font-mono font-semibold tabular-nums ${colorClass}`}>{rounded} ms</span>;
+}
 
 export default function DashboardOverviewPage() {
   const [summary, setSummary] = React.useState<DashboardSummaryData | null>(null);
@@ -118,26 +161,28 @@ export default function DashboardOverviewPage() {
         title="Dashboard Overview"
         description="Real-time uptime metrics, health status, and latency across your workspaces."
       >
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <Button
             variant="outline"
             onClick={handleCheckAll}
             disabled={isCheckingAll}
-            className="gap-2"
+            className="gap-2 border-border/80 hover:bg-muted/60"
           >
             {isCheckingAll ? (
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
             ) : (
-              <Play className="h-4 w-4 text-success" />
+              <Play className="h-4 w-4 text-emerald-500 fill-emerald-500/20" />
             )}
-            Check All Now
+            <span>{isCheckingAll ? "Executing Checks..." : "Check All Now"}</span>
           </Button>
-          <Button variant="outline" onClick={handleRefresh}>
-            <RefreshCw />
+
+          <Button variant="outline" onClick={handleRefresh} className="gap-1.5 border-border/80 hover:bg-muted/60">
+            <RefreshCw className="h-4 w-4" />
             Refresh
           </Button>
-          <Button render={<Link href="/endpoints/new" />}>
-            <Plus />
+
+          <Button render={<Link href="/endpoints/new" />} className="gap-2 shadow-xs shadow-primary/20">
+            <Plus className="h-4 w-4" />
             Add Endpoint
           </Button>
         </div>
@@ -145,20 +190,23 @@ export default function DashboardOverviewPage() {
 
       {/* Active Incident Callout Banner */}
       {activeIncident && (
-        <div role="alert" className="rounded-xl border border-destructive/25 bg-destructive/5 p-4 sm:px-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-destructive/10 text-destructive shrink-0">
-              <AlertTriangle className="h-5 w-5" />
+        <div
+          role="alert"
+          className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
+        >
+          <div className="flex items-start sm:items-center gap-3.5">
+            <div className="p-2.5 rounded-xl bg-destructive/20 text-destructive shrink-0 mt-0.5 sm:mt-0">
+              <AlertTriangle className="h-5 w-5 animate-pulse" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[0.9375rem] font-semibold text-foreground">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm sm:text-base font-bold text-foreground">
                   Active Downtime: {activeIncident.endpointName}
                 </span>
                 <StatusBadge status="DOWN" />
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                {activeIncident.failureReason || "Failing assertions"} • Started{" "}
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                {activeIncident.failureReason || "Failing assertion validation rules"} • Started{" "}
                 {new Date(activeIncident.startedAt).toLocaleString()}
               </p>
             </div>
@@ -166,7 +214,7 @@ export default function DashboardOverviewPage() {
           <Button
             variant="destructive"
             render={<Link href={`/endpoints/${activeIncident.endpointId}`} />}
-            className="shrink-0"
+            className="shrink-0 font-semibold shadow-xs"
           >
             Investigate Incident
           </Button>
@@ -185,7 +233,7 @@ export default function DashboardOverviewPage() {
           title="Healthy (UP)"
           value={summary.healthyCount}
           description="Meeting SLA availability"
-          icon={<CheckCircle className="h-[18px] w-[18px] text-success" />}
+          icon={<CheckCircle className="h-[18px] w-[18px] text-emerald-500" />}
           trend={{ value: `${summary.uptime24h}% 24h SLA`, isPositive: true }}
         />
         <StatCard
@@ -199,47 +247,49 @@ export default function DashboardOverviewPage() {
           title="Average Latency"
           value={`${summary.avgResponseTimeMs} ms`}
           description="Weighted 24h response time"
-          icon={<Clock className="h-[18px] w-[18px] text-warning" />}
+          icon={<Clock className="h-[18px] w-[18px] text-amber-500" />}
         />
       </div>
 
       {/* Latency Chart Card */}
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4">
+      <Card className="border border-border/80 shadow-xs">
+        <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2">
           <div>
             <CardTitle className="text-lg flex items-center gap-2">
               <Activity className="h-[18px] w-[18px] text-primary" />
               Aggregate Latency Trend (Last 24 Hours)
             </CardTitle>
-            <CardDescription className="mt-1">
-              Measured response times across all active endpoints in milliseconds.
+            <CardDescription className="mt-1 text-xs sm:text-sm">
+              Continuous probe response times across all active endpoints in milliseconds.
             </CardDescription>
           </div>
-          <Badge variant="secondary" className="tabular-nums shrink-0">
-            Avg {summary.avgResponseTimeMs} ms
-          </Badge>
+          <div className="flex items-center gap-2 shrink-0">
+            <Badge variant="secondary" className="font-mono text-xs tabular-nums px-2.5 py-1">
+              Avg {summary.avgResponseTimeMs} ms
+            </Badge>
+          </div>
         </CardHeader>
-        <CardContent className="pt-1">
-          <LatencyChart data={chartData} height={220} />
+        <CardContent className="pt-2">
+          <LatencyChart data={chartData} height={230} />
         </CardContent>
       </Card>
 
       {/* Active Endpoints Table */}
-      <Card>
-        <CardHeader className="flex flex-row items-start justify-between gap-4">
+      <Card className="border border-border/80 shadow-xs overflow-hidden">
+        <CardHeader className="flex flex-row items-center justify-between gap-4 py-4 px-6 border-b border-border/60 bg-muted/20">
           <div>
-            <CardTitle className="text-lg">Registered Endpoints</CardTitle>
-            <CardDescription className="mt-1">
-              Overview of all target HTTP/HTTPS endpoints and current health state.
+            <CardTitle className="text-base font-bold">Registered Endpoints</CardTitle>
+            <CardDescription className="text-xs">
+              Overview of target endpoints, response times, and health states.
             </CardDescription>
           </div>
-          <Button variant="outline" size="sm" render={<Link href="/endpoints" />} className="shrink-0">
-            Manage all <ArrowUpRight />
+          <Button variant="outline" size="sm" render={<Link href="/endpoints" />} className="shrink-0 gap-1 text-xs">
+            Manage all <ArrowUpRight className="h-3.5 w-3.5" />
           </Button>
         </CardHeader>
-        <CardContent className="px-0 -mb-5 border-t border-border">
+        <CardContent className="p-0">
           {endpoints.length === 0 ? (
-            <div className="py-8">
+            <div className="py-12">
               <EmptyState
                 title="No endpoints registered yet"
                 description="Add your first HTTP/HTTPS API to start monitoring uptime, response times, and failure alerts."
@@ -252,8 +302,8 @@ export default function DashboardOverviewPage() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Endpoint</TableHead>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="w-[35%]">Endpoint</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="hidden md:table-cell">Method</TableHead>
                   <TableHead>Interval</TableHead>
@@ -265,11 +315,16 @@ export default function DashboardOverviewPage() {
                 {endpoints.slice(0, 10).map((ep) => {
                   const latestCheck = ep.checks?.[0];
                   return (
-                    <TableRow key={ep.id}>
+                    <TableRow key={ep.id} className="transition-colors hover:bg-muted/40">
                       <TableCell className="font-medium">
                         <Link href={`/endpoints/${ep.id}`} className="group flex flex-col gap-0.5">
-                          <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors">{ep.name}</span>
-                          <span className="font-mono text-[0.8125rem] text-muted-foreground truncate max-w-xs">
+                          <span className="font-semibold text-foreground text-sm group-hover:text-primary transition-colors flex items-center gap-1.5">
+                            {ep.name}
+                            {ep.url.startsWith("https://") && (
+                              <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground/60 group-hover:text-primary transition-colors" />
+                            )}
+                          </span>
+                          <span className="font-mono text-xs text-muted-foreground truncate max-w-sm">
                             {ep.url}
                           </span>
                         </Link>
@@ -277,20 +332,25 @@ export default function DashboardOverviewPage() {
                       <TableCell>
                         <StatusBadge status={ep.status} />
                       </TableCell>
-                      <TableCell className="hidden md:table-cell font-mono text-[0.8125rem] font-semibold">
-                        {ep.method}
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant="outline" className={`font-mono text-[11px] font-semibold px-2 py-0.5 ${getMethodBadgeClass(ep.method)}`}>
+                          {ep.method}
+                        </Badge>
                       </TableCell>
-                      <TableCell className="tabular-nums text-muted-foreground">
+                      <TableCell className="tabular-nums text-xs text-muted-foreground">
                         {ep.intervalSeconds < 60 ? `${ep.intervalSeconds}s` : `${Math.round(ep.intervalSeconds / 60)}m`}
                       </TableCell>
-                      <TableCell className="hidden sm:table-cell tabular-nums font-semibold text-foreground">
-                        {latestCheck?.responseTimeMs !== undefined && latestCheck.responseTimeMs !== null
-                          ? `${Math.round(latestCheck.responseTimeMs)} ms`
-                          : "Pending"}
+                      <TableCell className="hidden sm:table-cell text-xs">
+                        {getLatencyBadge(latestCheck?.responseTimeMs)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="ghost" size="sm" render={<Link href={`/endpoints/${ep.id}`} />} className="text-primary hover:text-primary">
-                          Details
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          render={<Link href={`/endpoints/${ep.id}`} />}
+                          className="text-xs text-primary hover:text-primary hover:bg-primary/10"
+                        >
+                          View Details
                         </Button>
                       </TableCell>
                     </TableRow>
