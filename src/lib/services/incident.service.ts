@@ -77,7 +77,7 @@ export class IncidentService {
     });
 
     // Enqueue notification if user/workspace has alert notifications enabled
-    const recipientEmail = endpoint.workspace.owner.email;
+    const recipientEmail = endpoint.workspace?.owner?.email;
     if (recipientEmail) {
       try {
         await notificationQueue.add("incident-open", {
@@ -149,7 +149,7 @@ export class IncidentService {
     });
 
     // Enqueue resolution notification
-    const recipientEmail = endpoint.workspace.owner.email;
+    const recipientEmail = endpoint.workspace?.owner?.email;
     if (recipientEmail) {
       try {
         await notificationQueue.add("incident-resolved", {

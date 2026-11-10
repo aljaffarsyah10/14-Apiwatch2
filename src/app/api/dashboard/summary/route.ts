@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { DashboardService } from "@/lib/services/dashboard.service";
 import { getSessionOrDefault } from "@/lib/auth/session";
 
-export const dynamic = "force-dynamic";
-
 export async function GET() {
   try {
     const session = await getSessionOrDefault();

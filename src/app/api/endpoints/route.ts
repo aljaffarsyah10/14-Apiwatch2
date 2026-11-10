@@ -37,7 +37,15 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getSessionOrDefault();
     const workspaceId = session.workspaceId;
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON payload" },
+        { status: 400 }
+      );
+    }
 
     const parsed = endpointFormSchema.safeParse(body);
     if (!parsed.success) {

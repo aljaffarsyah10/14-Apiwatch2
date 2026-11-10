@@ -25,7 +25,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        { success: false, error: "Invalid JSON payload" },
+        { status: 400 }
+      );
+    }
     const { email, password } = body;
 
     if (!email || !password || typeof email !== "string" || typeof password !== "string") {

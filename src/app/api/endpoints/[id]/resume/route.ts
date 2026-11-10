@@ -19,9 +19,10 @@ export async function POST(_request: NextRequest, context: RouteContext) {
     });
   } catch (error) {
     console.error("[API POST /api/endpoints/:id/resume]", error);
+    const isNotFound = error instanceof Error && error.message === "Endpoint not found";
     return NextResponse.json(
       { success: false, error: error instanceof Error ? error.message : "Internal error" },
-      { status: 500 }
+      { status: isNotFound ? 404 : 500 }
     );
   }
 }

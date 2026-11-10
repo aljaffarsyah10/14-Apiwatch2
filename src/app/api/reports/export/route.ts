@@ -3,8 +3,6 @@ import { getSessionOrDefault } from "@/lib/auth/session";
 import db from "@/lib/db";
 import { buildSafeCsv } from "@/lib/utils/csv";
 
-export const dynamic = "force-dynamic";
-
 export async function GET(request: NextRequest) {
   try {
     const session = await getSessionOrDefault();
