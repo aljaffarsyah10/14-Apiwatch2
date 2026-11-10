@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getSessionOrDefault } from "@/lib/auth/session";
 import db from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const session = await getSessionOrDefault();
@@ -30,10 +32,17 @@ export async function GET() {
       take: 50,
     });
 
-    return NextResponse.json({
-      success: true,
-      data: incidents,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: incidents,
+      },
+      {
+        headers: {
+          "Cache-Control": "private, max-age=5, stale-while-revalidate=15",
+        },
+      }
+    );
   } catch (error) {
     console.error("[API GET /api/incidents]", error);
     return NextResponse.json(

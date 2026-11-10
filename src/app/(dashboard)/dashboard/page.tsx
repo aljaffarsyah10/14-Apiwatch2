@@ -21,8 +21,16 @@ import { StatCard } from "@/components/shared/stat-card";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import dynamic from "next/dynamic";
 import { Badge } from "@/components/ui/badge";
-import { LatencyChart } from "@/components/endpoints/latency-chart";
+
+const LatencyChart = dynamic(
+  () => import("@/components/endpoints/latency-chart").then((mod) => mod.LatencyChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-60 w-full animate-pulse rounded-lg bg-muted/40" />,
+  }
+);
 import { LoadingSkeleton } from "@/components/shared/loading-skeleton";
 import { ErrorState } from "@/components/shared/error-state";
 import { EmptyState } from "@/components/shared/empty-state";

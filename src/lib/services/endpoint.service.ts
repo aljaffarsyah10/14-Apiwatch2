@@ -55,7 +55,7 @@ export class EndpointService {
       include: {
         config: true,
         checks: {
-          take: 20,
+          take: 1, // High performance: only latest check needed for list views
           orderBy: { checkedAt: "desc" },
           select: {
             id: true,

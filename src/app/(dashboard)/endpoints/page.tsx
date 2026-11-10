@@ -20,6 +20,8 @@ import {
   CheckSquare,
   Square,
   Filter,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +94,8 @@ export default function EndpointsPage() {
   const [isCheckingAll, setIsCheckingAll] = React.useState(false);
   const [isExecutingBulk, setIsExecutingBulk] = React.useState(false);
   const [autoRefreshEnabled, setAutoRefreshEnabled] = React.useState(false);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pageSize, setPageSize] = React.useState(10);
 
   // Auto-refresh interval (30s)
   React.useEffect(() => {
@@ -173,6 +177,13 @@ export default function EndpointsPage() {
     }
     return sortOrder === "asc" ? comparison : -comparison;
   });
+
+  const totalPages = Math.max(1, Math.ceil(sortedEndpoints.length / pageSize));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const paginatedEndpoints = sortedEndpoints.slice(
+    (safeCurrentPage - 1) * pageSize,
+    safeCurrentPage * pageSize
+  );
 
   const toggleSort = (column: "name" | "latency" | "interval" | "status") => {
     if (sortBy === column) {
@@ -654,7 +665,7 @@ export default function EndpointsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {sortedEndpoints.map((ep) => {
+                {paginatedEndpoints.map((ep) => {
                   const latestCheck = ep.checks?.[0];
                   const isSelected = selectedIds.includes(ep.id);
 
@@ -764,6 +775,58 @@ export default function EndpointsPage() {
                 })}
               </TableBody>
             </Table>
+          )}
+
+          {/* Table Pagination Bar */}
+          {sortedEndpoints.length > 0 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-6 py-3.5 border-t border-border/60 bg-muted/10 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span>
+                  Showing {Math.min((currentPage - 1) * pageSize + 1, sortedEndpoints.length)} to{" "}
+                  {Math.min(currentPage * pageSize, sortedEndpoints.length)} of {sortedEndpoints.length} endpoints
+                </span>
+                <span>•</span>
+                <div className="flex items-center gap-1.5">
+                  <span>Show</span>
+                  <select
+                    value={pageSize}
+                    onChange={(e) => setPageSize(Number(e.target.value))}
+                    className="h-7 rounded border border-border/80 bg-card px-1.5 text-xs font-semibold focus-visible:outline-none"
+                  >
+                    <option value={10}>10</option>
+                    <option value={25}>25</option>
+                    <option value={50}>50</option>
+                  </select>
+                  <span>per page</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="h-7 w-7 p-0"
+                  aria-label="Previous page"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </Button>
+                <span className="font-semibold text-foreground px-2">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                  className="h-7 w-7 p-0"
+                  aria-label="Next page"
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </Button>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

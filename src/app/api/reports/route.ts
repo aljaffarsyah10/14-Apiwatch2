@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionOrDefault } from "@/lib/auth/session";
 import db from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getSessionOrDefault();
@@ -85,16 +87,23 @@ export async function GET(request: NextRequest) {
           )
         : 0;
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        period,
-        overallUptime,
-        overallAvgLatency,
-        totalEndpoints,
-        endpoints: reportData,
+    return NextResponse.json(
+      {
+        success: true,
+        data: {
+          period,
+          overallUptime,
+          overallAvgLatency,
+          totalEndpoints,
+          endpoints: reportData,
+        },
       },
-    });
+      {
+        headers: {
+          "Cache-Control": "private, max-age=10, stale-while-revalidate=20",
+        },
+      }
+    );
   } catch (error) {
     console.error("[API GET /api/reports]", error);
     return NextResponse.json(

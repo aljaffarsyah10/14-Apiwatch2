@@ -2,15 +2,24 @@ import { NextResponse } from "next/server";
 import { DashboardService } from "@/lib/services/dashboard.service";
 import { getSessionOrDefault } from "@/lib/auth/session";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const session = await getSessionOrDefault();
     const summary = await DashboardService.getSummary(session.workspaceId);
 
-    return NextResponse.json({
-      success: true,
-      data: summary,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: summary,
+      },
+      {
+        headers: {
+          "Cache-Control": "private, max-age=5, stale-while-revalidate=15",
+        },
+      }
+    );
   } catch (error) {
     console.error("[API GET /api/dashboard/summary]", error);
     return NextResponse.json(

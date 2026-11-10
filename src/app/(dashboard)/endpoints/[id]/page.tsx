@@ -33,7 +33,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { LatencyChart } from "@/components/endpoints/latency-chart";
+import dynamic from "next/dynamic";
+
+const LatencyChart = dynamic(
+  () => import("@/components/endpoints/latency-chart").then((mod) => mod.LatencyChart),
+  {
+    ssr: false,
+    loading: () => <div className="h-60 w-full animate-pulse rounded-lg bg-muted/40" />,
+  }
+);
 import {
   getEndpointById,
   pauseEndpoint,
