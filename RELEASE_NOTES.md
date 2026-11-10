@@ -1,101 +1,77 @@
-# APIWatch Release Notes — v1.0.0 (MVP Release)
+# APIWatch Release Notes — v2.0.0 (Production LTS)
 
-**Release Version**: v1.0.0  
+**Release Version**: v2.0.0  
 **Release Date**: November 2026  
-**Status**: General Availability (Production Ready)
+**Status**: General Availability (Production Long-Term Support)
 
 ---
 
 ## 1. Executive Summary
 
-We are excited to announce the release of **APIWatch v1.0.0**, an open-source, enterprise-grade API monitoring SaaS platform. Designed around a robust **modular monolith** architecture with a dedicated background monitoring engine, APIWatch provides automated health checking, low-latency performance telemetry, deep response assertions, incident management, and public status pages.
+We are proud to announce the production release of **APIWatch v2.0.0**, an enterprise-grade API monitoring and outage alerting platform built with a high-performance **modular monolith** web application and decoupled **BullMQ** worker daemon.
+
+v2.0.0 represents the culmination of a 10-phase engineering lifecycle covering full UX/UI redesign, advanced endpoint operations, defense-in-depth security hardening, multi-layer query and cache performance optimization, full SaaS billing infrastructure, deep observability and APM telemetry, and end-to-end production readiness.
 
 ---
 
-## 2. Completed Milestones (Phases 1–10)
+## 2. Highlights of What's New in v2.0.0
 
-APIWatch was developed strictly following the sequential engineering playbook:
+### 🚀 Production Architecture & Observability
+- **Prometheus Telemetry (`/api/metrics`)**: Built-in Prometheus exporter serving HTTP request rates, p50/p95/p99 latencies, database ping times, and process memory/CPU consumption.
+- **Deep Health Probes (`/api/health?probe=ready|live`)**: Orchestrator-compatible liveness and readiness checks validating live PostgreSQL and Redis latencies.
+- **Structured JSON Logging**: Zero-dependency structured JSON logger with automatic PII sanitization (redacting passwords, tokens, API keys, and authorization headers).
+- **Runtime Error Tracker**: Exception fingerprinting with in-memory breadcrumbs and automated system alerts.
+- **Automated Backup & Restore**: Robust backup scripts (`scripts/backup.sh`, `scripts/restore.sh`, `scripts/backup-db.sh`) with SHA-256 integrity checksums, automated rotation, and S3 replication capabilities.
 
-| Phase | Milestone | Key Deliverables | Status |
-| :--- | :--- | :--- | :--- |
-| **Phase 1** | Foundation & Tooling | Next.js 16 (Turbopack), Tailwind v4, shadcn/ui, ESLint 9, TypeScript | Complete |
-| **Phase 2** | Architecture Blueprint | Monolith + worker specification, data model, SSRF defense plan in `TECHNICAL_PLAN.md` | Complete |
-| **Phase 3** | UI/UX Specifications | Component design tokens, accessibility, and visual guidelines in `UI_UX_GUIDE.md` | Complete |
-| **Phase 4** | Layout & UI Shells | Sidebar navigation, status badges, responsive grid layouts, and empty states | Complete |
-| **Phase 5** | Core Frontend Views | Endpoint CRUD forms, Recharts latency charts, assertion builders, incident tables | Complete |
-| **Phase 6** | Backend Core Engine | Prisma models, BullMQ queue, SSRF guard, AES-256-GCM crypto, dedicated worker daemon | Complete |
-| **Phase 7** | Full E2E Integration | Stateless HMAC authentication, live on-demand check triggers, real database telemetry | Complete |
-| **Phase 8** | Advanced Features | Interactive API documentation, CWE-1236 safe CSV export, public `/status` board | Complete |
-| **Phase 9** | QA & Security Audit | 38 automated test cases, 0 production vulnerabilities, strict linting & type checks | Complete |
-| **Phase 10** | Production Packaging | Multi-stage Dockerfiles, Docker Compose stack, Caddy reverse proxy, backup scripts | Complete |
+### 💼 SaaS Business Infrastructure
+- **Tiered Quota Enforcement**: Free Starter (5 endpoints, 5m checks), Pro (25 endpoints, 30s checks), and Enterprise tiers managed via `UsageLimitsService`.
+- **14-Day Free Pro Trial**: Automatically provisions a 14-day Pro trial upon workspace registration without requiring a credit card.
+- **SaaS Billing Engine**: Integrated checkout flow, automated PDF/HTML invoice generation, subscription cancellation/resumption, and HMAC-verified payment webhooks.
+- **Interactive Pricing Page (`/pricing`)**: Feature comparison matrix with monthly/annual billing cycle toggle and direct checkout triggers.
+- **Onboarding Wizard**: Guided first-run checklist taking new users from endpoint creation to alert configuration.
 
----
+### 🛡️ Enterprise-Grade Security
+- **Multi-Layer SSRF Defense**: Dynamic DNS resolution blocking RFC 1918 private ranges, AWS/GCP cloud metadata (`169.254.169.254`), IPv6 loopback, and local socket probes.
+- **Sliding Window Rate Limiter**: 60 requests/minute per client with sliding window tracking to prevent API abuse.
+- **Cryptographic Protection**: AES-256-GCM authenticated encryption for database credentials and tokens; 12-round bcrypt password hashing with constant-time HMAC session token validation.
+- **Automated Security Headers**: Enforced HSTS (`max-age=63072000`), CSP, X-Frame-Options (`DENY`), X-Content-Type-Options (`nosniff`), and Permissions-Policy.
 
-## 3. Key Features in v1.0.0
+### ⚡ Performance & Reliability
+- **Dual-Layer Cache**: In-memory LRU + Redis caching layer for instant telemetry retrieval.
+- **Optimized Composite DB Indexes**: High-performance indexes on `CheckResult(endpointId, checkedAt)`, `Incident(workspaceId, status)`, and `Endpoint(workspaceId, isPaused)`.
+- **Lean Database Projections**: Query select scoping eliminating large payloads and unneeded columns.
+- **Dynamic Component Imports**: Client bundle footprint minimized via dynamic imports and DOM pagination.
 
-### Comprehensive API Monitoring
-- **HTTP Methods**: Support for `GET`, `POST`, `PUT`, `DELETE`, `PATCH`, and `HEAD` requests.
-- **Flexible Scheduling**: Configurable automated intervals (1 minute, 5 minutes, 15 minutes, 30 minutes, 60 minutes).
-- **Execution Engine**: High-performance HTTP executor with configurable timeouts (up to 30s) and redirection handling.
-- **On-Demand Checking**: "Check Now" capability for instant diagnostic feedback.
-- **Pause & Resume**: Temporary suspension of active monitoring schedules.
+### 🎨 Modernized User Experience
+- **Command Palette (`Cmd+K` / `Ctrl+K`)**: Rapid navigation and global actions across endpoints, incidents, settings, and documentation.
+- **Bulk Operations**: Multi-select endpoints to pause, resume, or delete simultaneously.
+- **Multi-Sorting & Search**: Instant client-side search, filtering by status/method, and multi-field table sorting.
+- **SLA Export**: CWE-1236 safe CSV and JSON export with automatic spreadsheet injection sanitization.
 
-### Deep Assertions & Validation
-- **Status Code Evaluation**: Exact matches (e.g. `200`) or standard ranges (e.g. `2xx`, `200-204`).
-- **Latency Thresholds**: Flag warnings and failures if response times exceed defined milliseconds (e.g. `< 500ms`).
-- **Header Assertions**: Verify required headers exist and match expected values.
-- **Body Content Matching**: Substring and JSON path matching on response bodies.
-
-### Enterprise-Grade Security
-- **SSRF Defense (`ssrf-guard.ts`)**: Real-time hostname DNS resolution with rejection of private/internal networks (RFC 1918, RFC 3927 cloud metadata `169.254.169.254`, IPv6 loopback, and non-HTTP protocols).
-- **Data At Rest Encryption (`crypto.ts`)**: AES-256-GCM authenticated encryption for sensitive headers, bearer tokens, and basic auth credentials stored in the database.
-- **CWE-1236 Neutralization (`csv.ts`)**: All exported CSV cells starting with formula trigger characters (`=`, `+`, `-`, `@`, `\t`, `\r`) are sanitized with single-quote escaping to prevent spreadsheet remote code execution.
-- **Stateless HMAC Sessions (`session.ts`)**: Tamper-proof session cookies signed with SHA-256 HMAC and secured with `HttpOnly`, `SameSite=Lax`, and `Secure` flags.
-
-### Incident Lifecycle & Notifications
-- **Automated Incident Creation**: Automatically detects consecutive monitoring failures and opens incidents.
-- **Incident State Machine**: Complete tracking from `OPEN` → `ACKNOWLEDGED` → `RESOLVED`.
-- **Alert Dispatcher**: Background notification worker with SMTP / transactional email alerting on status degradation.
-
-### Observability & Public Status
-- **Interactive Telemetry**: Responsive Recharts latency timeline with uptime percentages and error categorizations.
-- **SLA Reporting**: 24-hour, 7-day, 30-day, and 90-day availability reports.
-- **Public Status Page (`/status`)**: Public-facing service status board providing transparency to external stakeholders without login requirements.
-- **Automated Health Check (`/api/health`)**: High-speed database and Redis diagnostic endpoint for container orchestration health checks.
+### 🌐 SEO, Social & Accessibility
+- **Dynamic Open Graph Images (`src/app/opengraph-image.tsx`)**: High-resolution 1200x630 social sharing banners generated via `@vercel/og`.
+- **Sitemap & Robots**: Clean sitemap index and crawler rules isolating private workspace dashboards.
+- **Full Keyboard Navigation & ARIA**: Screen-reader friendly semantic structure with explicit accessibility labels.
 
 ---
 
-## 4. Quality & Security Verification Metrics
+## 3. Verification & Test Metrics
 
-- **Unit & Integration Tests**: 38 tests passing (100% pass rate) via Vitest in 330ms.
-- **Security Audit**: `pnpm audit --prod` reports **0 known vulnerabilities**.
-- **TypeScript Static Analysis**: `pnpm exec tsc --noEmit` reports **0 errors**.
-- **ESLint Compliance**: `pnpm lint` reports **0 warnings and 0 errors**.
-- **Container Footprint**: Next.js standalone multi-stage image optimized to ~120MB.
-
----
-
-## 5. Deployment Artifacts
-
-The repository includes ready-to-run container configurations:
-- `Dockerfile`: Multi-stage Alpine container for Next.js web application.
-- `Dockerfile.worker`: Container for the BullMQ monitoring worker and background tasks.
-- `docker-compose.yml`: Production stack orchestrating Web, Worker, PostgreSQL 16, Redis 7, and Caddy 2.
-- `Caddyfile`: Reverse proxy configuration with automatic Let's Encrypt TLS and HSTS security headers.
-- `scripts/backup.sh` & `scripts/restore.sh`: Production-safe database backup and restore scripts.
-- `.env.production.example`: Production environment reference template.
+- **Automated Tests**: **134/134 Tests Passing (100% Pass Rate)** across 25 suites in 1.44s.
+- **Test Categories**: Unit, Integration, API, E2E Workflow, UI Rendering, Auth/RBAC, and Edge Cases.
+- **Security Audit**: **0 Vulnerabilities** reported via `pnpm audit --prod`.
+- **Static Analysis**: **0 TypeScript errors & 0 ESLint warnings**.
+- **Next.js Production Build**: **43 Routes compiled and optimized** with Turbopack and Partial Prerendering.
 
 ---
 
-## 6. Known Limitations & Roadmap
+## 4. Production Documentation Directory
 
-### Current Scope (MVP)
-- Single-region monitoring probes (executes checks from the hosting VPS region).
-- Email (SMTP) alerting only; Slack and Discord webhooks planned for v1.1.0.
-- Team workspaces are currently single-tenant per registration.
-
-### Roadmap for v1.1.0 (Phase 2 DX & Collaboration)
-- Multi-region distributed monitoring probes.
-- In-app Webhook, Slack, and PagerDuty notification channels.
-- Multi-member team workspace invitations with Role-Based Access Control (RBAC).
-- Stripe / LemonSqueezy billing integration for paid plans.
+- 📖 [`docs/API_DOCUMENTATION.md`](./docs/API_DOCUMENTATION.md) — Comprehensive REST API reference.
+- 🚀 [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md) — Pre-flight audit matrix and smoke testing checklist.
+- 🗄️ [`docs/DATABASE_MIGRATION_GUIDE.md`](./docs/DATABASE_MIGRATION_GUIDE.md) — Production database migration and zero-downtime evolution.
+- ⚙️ [`docs/ENVIRONMENT_CONFIGURATION.md`](./docs/ENVIRONMENT_CONFIGURATION.md) — Environment variables and cryptographic secrets reference.
+- 🔄 [`docs/ROLLBACK_STRATEGY.md`](./docs/ROLLBACK_STRATEGY.md) — Emergency rollback playbooks and disaster recovery runbooks.
+- 📊 [`docs/POST_LAUNCH_MONITORING.md`](./docs/POST_LAUNCH_MONITORING.md) — Day 0–14 observability and Prometheus alerting rules.
+- 🗺️ [`docs/PRODUCT_ROADMAP.md`](./docs/PRODUCT_ROADMAP.md) — Future product roadmap (Phases 11–16).
+- 🚢 [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) — VPS Ubuntu deployment with Docker Compose & Caddy TLS.
