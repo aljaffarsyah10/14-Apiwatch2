@@ -19,6 +19,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.APP_URL || "https://apiwatch.io"),
   title: {
     default: "APIWatch — Automated API Monitoring & Outage Alerting",
     template: "%s | APIWatch",
@@ -32,8 +33,27 @@ export const metadata: Metadata = {
     "incident alert",
     "latency tracker",
     "SLA reporting",
+    "synthetic monitoring",
+    "developer tools",
+    "status page",
   ],
-  authors: [{ name: "APIWatch Team" }],
+  authors: [{ name: "APIWatch Team", url: "https://apiwatch.io" }],
+  creator: "APIWatch",
+  publisher: "APIWatch Inc.",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
     type: "website",
     locale: "en_US",
@@ -48,6 +68,10 @@ export const metadata: Metadata = {
     title: "APIWatch — Automated API Monitoring",
     description:
       "Real-time HTTP/HTTPS API monitoring, uptime alerting, and performance observability.",
+    creator: "@apiwatch_dev",
+  },
+  icons: {
+    icon: "/favicon.ico",
   },
 };
 

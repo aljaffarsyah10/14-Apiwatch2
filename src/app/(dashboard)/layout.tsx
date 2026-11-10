@@ -1,8 +1,20 @@
 import * as React from "react";
+import type { Metadata } from "next";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
 import { OnboardingProvider } from "@/components/onboarding/onboarding-provider";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Dashboard",
+    template: "%s | APIWatch Workspace",
+  },
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 export default function DashboardLayout({
   children,

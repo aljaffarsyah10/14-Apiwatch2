@@ -155,26 +155,37 @@ cp .env.production.example .env
 nano .env
 ```
 
-Ensure the following variables are configured:
+Ensure the following variables are configured (see [`docs/ENVIRONMENT_CONFIGURATION.md`](./docs/ENVIRONMENT_CONFIGURATION.md) for complete reference):
 ```dotenv
 NODE_ENV=production
 DOMAIN=apiwatch.example.com
 APP_URL=https://apiwatch.example.com
+PORT=3000
 
 POSTGRES_DB=apiwatch
 POSTGRES_USER=apiwatch_user
 POSTGRES_PASSWORD=<GENERATED_POSTGRES_PASSWORD>
+DATABASE_URL="postgresql://apiwatch_user:<GENERATED_POSTGRES_PASSWORD>@postgres:5432/apiwatch?schema=public&connection_limit=25&pool_timeout=10"
 
 REDIS_PASSWORD=<GENERATED_REDIS_PASSWORD>
+REDIS_URL="redis://:<GENERATED_REDIS_PASSWORD>@redis:6379"
 
-AUTH_SECRET=<GENERATED_AUTH_SECRET>
-ENCRYPTION_KEY=<GENERATED_ENCRYPTION_KEY>
+AUTH_SECRET=<GENERATED_AUTH_SECRET_64_HEX_CHARS>
+ENCRYPTION_KEY=<GENERATED_ENCRYPTION_KEY_64_HEX_CHARS>
+SESSION_COOKIE_NAME="__Host-apiwatch_session"
+
+BILLING_SANDBOX_MODE=false
+BILLING_GATEWAY_WEBHOOK_SECRET=<PAYMENT_GATEWAY_WEBHOOK_SECRET>
 
 EMAIL_FROM="APIWatch Alerts <alerts@apiwatch.example.com>"
 SMTP_HOST=smtp.resend.com
 SMTP_PORT=587
 SMTP_USER=resend
 SMTP_PASSWORD=<YOUR_SMTP_API_KEY>
+
+LOG_LEVEL=info
+METRICS_ENABLED=true
+OPS_ALERT_WEBHOOK_URL="https://hooks.slack.com/services/YOUR/OPS/WEBHOOK"
 ```
 
 ---
@@ -238,9 +249,9 @@ Run through these verification checks once containers are healthy:
    curl -I https://apiwatch.example.com
    # Verify HTTP 200/307, valid Let's Encrypt TLS certificate, and Strict-Transport-Security header
    ```
-2. **Application Health Check Endpoint**:
+2. **Application Deep Health Check Endpoint**:
    ```bash
-   curl -s https://apiwatch.example.com/api/health | jq .
+   curl -s https://apiwatch.example.com/api/health?probe=ready | jq .
    ```
    Expected response:
    ```json
@@ -250,8 +261,16 @@ Run through these verification checks once containers are healthy:
      "services": {
        "database": "connected",
        "redis": "connected"
+     },
+     "latency": {
+       "databaseMs": 2,
+       "redisMs": 1
      }
    }
+   ```
+3. **Prometheus Telemetry Scraper**:
+   ```bash
+   curl -s https://apiwatch.example.com/api/metrics | head -n 15
    ```
 3. **User Authentication Flow**:
    - Navigate to `https://apiwatch.example.com/register` and create the initial administrator account.

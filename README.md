@@ -8,8 +8,10 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1.svg?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D.svg?logo=redis&logoColor=white)](https://redis.io/)
 [![Caddy](https://img.shields.io/badge/Caddy-2-22B573.svg?logo=caddy&logoColor=white)](https://caddyserver.com/)
-[![Vitest](https://img.shields.io/badge/Tests-38%20Passed-brightgreen.svg?logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-134%20Passed-brightgreen.svg?logo=vitest&logoColor=white)](https://vitest.dev/)
 [![Security](https://img.shields.io/badge/SSRF%20Guard-Zero%20Trust-success.svg)](#-arsitektur-keamanan--hardening)
+[![Prometheus](https://img.shields.io/badge/Metrics-Prometheus%20APM-E6522C.svg?logo=prometheus&logoColor=white)](./docs/API_DOCUMENTATION.md#7-system-health--observability-apis)
+[![SaaS](https://img.shields.io/badge/SaaS-Free%20%2F%20Pro%20Tier-blue.svg)](./src/app/pricing/page.tsx)
 
 **APIWatch** adalah platform SaaS pemantauan API (*API Monitoring*) modern berbasis arsitektur **modular monolith** dengan background worker decoupled. Dirancang untuk developer dan tim engineering dalam mengawasi performa, ketersediaan (*uptime SLA*), validasi respon (*deep assertions*), penanganan siklus insiden, serta publikasi papan status (*status page*) secara real-time dan aman.
 
@@ -336,22 +338,26 @@ pnpm build
 ```
 
 ### Hasil Audit Terakhir
-- **Automated Tests**: **38/38 lulus (100% pass rate)** dalam 330ms.
+- **Automated Tests**: **134/134 lulus (100% pass rate)** meliputi Unit, Integration, API, E2E, UI, RBAC, dan Edge Cases.
 - **Audit Keamanan**: **0 kerentanan (0 vulnerabilities)** pada `pnpm audit --prod`.
 - **Static Analysis**: **0 TypeScript errors & 0 ESLint warnings**.
-- **Build Output**: 29 routes terkompilasi sukses dengan standalone runner bundle.
+- **Observability**: Prometheus metrics `/api/metrics`, deep health checks `/api/health?probe=ready`, structured JSON logger with PII redaction.
+- **SaaS Business**: Multi-tier quotas (Free, Pro, Enterprise), 14-day Pro trial, webhook billing processor.
+- **Build Output**: 42 routes terkompilasi sukses dengan Next.js standalone runner bundle.
 
 ---
 
 ## 📚 Dokumentasi Lengkap
 
 Untuk informasi teknis lebih mendalam, pelajari dokumen pendukung berikut:
-- 📖 [`PROJECT_PRD_AND_PLAYBOOK.md`](./PROJECT_PRD_AND_PLAYBOOK.md) — Rencana induk produk & instruksi 10 fase pengembangan.
+- 📖 [`docs/API_DOCUMENTATION.md`](./docs/API_DOCUMENTATION.md) — Spesifikasi REST API lengkap dengan payload request/response & status code.
+- 🚀 [`docs/PRODUCTION_CHECKLIST.md`](./docs/PRODUCTION_CHECKLIST.md) — Pre-flight checklist, matrix audit, dan post-deployment smoke tests.
+- 🗄️ [`docs/DATABASE_MIGRATION_GUIDE.md`](./docs/DATABASE_MIGRATION_GUIDE.md) — Prosedur migrasi produksi, zero-downtime evolution, dan disaster recovery runbook.
+- ⚙️ [`docs/ENVIRONMENT_CONFIGURATION.md`](./docs/ENVIRONMENT_CONFIGURATION.md) — Panduan lengkap variabel lingkungan & rahasia kriptografi.
+- 🚢 [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) — Prosedur lengkap deployment VPS produksi dengan Caddy TLS & Docker Compose.
 - 📐 [`TECHNICAL_PLAN.md`](./TECHNICAL_PLAN.md) — Cetak biru arsitektur, skema basis data, dan antrean BullMQ.
 - 🎨 [`UI_UX_GUIDE.md`](./UI_UX_GUIDE.md) — Panduan visual, tipografi, palet warna, dan aturan aksesibilitas.
-- 🧪 [`TEST_REPORT.md`](./TEST_REPORT.md) — Laporan lengkap pengujian QA, audit keamanan, dan matriks pengujian.
-- 🚀 [`DEPLOYMENT_GUIDE.md`](./DEPLOYMENT_GUIDE.md) — Prosedur lengkap deployment VPS produksi, backup cron, dan disaster recovery.
-- 📢 [`RELEASE_NOTES.md`](./RELEASE_NOTES.md) — Catatan rilis resmi v1.0.0 (Fitur, jaminan keamanan, dan roadmap ke depan).
+- 📢 [`RELEASE_NOTES.md`](./RELEASE_NOTES.md) — Catatan rilis resmi v2.0.0.
 
 ---
 

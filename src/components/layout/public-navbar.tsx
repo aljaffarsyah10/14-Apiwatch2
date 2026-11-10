@@ -30,6 +30,9 @@ export function PublicNavbar() {
           <Link href="/#features" className="transition-colors hover:text-foreground">
             Features
           </Link>
+          <Link href="/pricing" className="transition-colors hover:text-foreground">
+            Pricing
+          </Link>
           <Link href="/#architecture" className="transition-colors hover:text-foreground">
             Architecture
           </Link>
@@ -93,6 +96,13 @@ export function PublicNavbar() {
               className="px-3 py-2 rounded-lg hover:bg-muted text-foreground transition-colors"
             >
               Features
+            </Link>
+            <Link
+              href="/pricing"
+              onClick={() => setMobileMenuOpen(false)}
+              className="px-3 py-2 rounded-lg hover:bg-muted text-foreground transition-colors"
+            >
+              Pricing
             </Link>
             <Link
               href="/#architecture"

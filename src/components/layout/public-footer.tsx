@@ -31,6 +31,11 @@ export function PublicFooter() {
             <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground">Product</h4>
             <ul className="space-y-2 text-xs">
               <li>
+                <Link href="/pricing" className="hover:text-foreground transition-colors">
+                  Pricing & Plans
+                </Link>
+              </li>
+              <li>
                 <Link href="/#features" className="hover:text-foreground transition-colors">
                   Health Checks
                 </Link>

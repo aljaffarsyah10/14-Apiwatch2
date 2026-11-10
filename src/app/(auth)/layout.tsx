@@ -1,9 +1,13 @@
-"use client";
-
 import * as React from "react";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Activity, ShieldCheck } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+
+export const metadata: Metadata = {
+  title: "Authentication",
+  description: "Sign in or create your APIWatch account to start monitoring APIs in real time.",
+};
 
 export default function AuthLayout({
   children,
